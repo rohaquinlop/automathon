@@ -1,6 +1,6 @@
-class DFA(self):
+class DFA():
 
-  def __init__(self, initialState: string):
+  def __init__(self, initialState : str):
     self.initialState = initialState
   
   def getInitialState(self):
