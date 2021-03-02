@@ -1,6 +1,6 @@
-import pythomata.finiteAutomata.dfa as pydfa
+from pythomata.finiteAutomata.dfa import *
 
 def test_dfa():
-  fa = pydfa.DFA(initialState='q0')
+  fa = DFA(initialState='q0')
 
   assert fa.getInitialState() == 'q0'
