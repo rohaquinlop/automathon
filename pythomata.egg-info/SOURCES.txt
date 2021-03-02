@@ -1,0 +1,7 @@
+README.md
+setup.py
+pythomata/__init__.py
+pythomata.egg-info/PKG-INFO
+pythomata.egg-info/SOURCES.txt
+pythomata.egg-info/dependency_links.txt
+pythomata.egg-info/top_level.txt
