@@ -1,4 +1,4 @@
-class NFA(self):
+class NFA():
 
   def __init__(self):
     pass
