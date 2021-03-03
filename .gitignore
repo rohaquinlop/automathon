@@ -1,1 +1,3 @@
 venv/
+dist/
+automathon.egg-info/
