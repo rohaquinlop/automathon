@@ -1,4 +1,4 @@
-# pythomata
+# automathon
 
 ![alt text](https://travis-ci.com/rohaquinlop/Pythomata.svg?branch=main)
 
