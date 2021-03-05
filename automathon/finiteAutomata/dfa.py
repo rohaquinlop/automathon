@@ -59,7 +59,7 @@ class DFA():
     F : set
       Set of strings that represent the final state/states of Q (F ⊆ Q).
     """
-    self.initialState = initialState
+    self.Q = Q
     self.sigma = sigma
     self.delta = delta
     self.initialState = initialState
