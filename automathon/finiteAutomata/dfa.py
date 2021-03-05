@@ -79,7 +79,7 @@ class DFA():
 
       #Validate if the d transitions are valid
       for s in self.delta[d]:
-        if s not in self.sigma or self.delta[d][s] not in q:
+        if s not in self.sigma or self.delta[d][s] not in self.Q:
           return False
 
 
