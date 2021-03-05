@@ -3,4 +3,8 @@ dist/
 automathon.egg-info/
 workspace.code*
 virtualEnv.sh
+.eggs/
+automathon/__pycache__/
+automathon/finiteAutomata/__pycache__/
+tests/__pycache__/
 
