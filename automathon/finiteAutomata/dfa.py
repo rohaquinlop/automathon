@@ -66,6 +66,8 @@ class DFA():
     self.F = F
 
   def getInitialState(self):
+      """Returns the initial state string
+      """
     return self.initialState
 
   def isValid(self) -> bool:
