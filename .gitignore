@@ -1,3 +1,4 @@
 venv/
 dist/
 automathon.egg-info/
+workspace.code*
