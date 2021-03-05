@@ -65,9 +65,29 @@ class DFA():
     self.initialState = initialState
     self.F = F
 
-  def getInitialState(self):
-    """ Returns the initial state string """
-    return self.initialState
-
   def isValid(self) -> bool:
-    pass
+    """ Returns True if the DFA is an valid automata """
+
+    #Validate if the initial state is in the set Q
+    if self.initialState not in self.Q:
+      return False
+
+    #Validate if the delta transitions are in the set Q
+    for d in self.delta:
+      if d not in self.Q:
+        return False
+
+      #Validate if the d transitions are valid
+      for s in self.delta[d]:
+        if s not in self.sigma or self.delta[d][s] not in q:
+          return False
+
+
+    #Validate if the final state are in Q
+    for f in self.F:
+      if f not in self.Q:
+        return False
+
+    #None of the above cases failed then this DFA is valid
+    return True
+
