@@ -2,3 +2,5 @@ venv/
 dist/
 automathon.egg-info/
 workspace.code*
+virtualEnv.sh
+
