@@ -1,3 +1,6 @@
+# Exceptions module
+from automathon.errors.errors import *
+
 class DFA():
   """A Class used to represent a Deterministic Finite Automaton
 
@@ -37,6 +40,8 @@ class DFA():
 
   Methods
   - - - - - - - - - - - - - - - - - -
+
+  isValid() -> bool : Returns True if the DFA is a valid automata
   """
 
   def __init__(self, Q : set, sigma : set, delta : dict, initialState : str, F : set):
@@ -64,6 +69,19 @@ class DFA():
     self.delta = delta
     self.initialState = initialState
     self.F = F
+
+  def accept(self, S : str) -> bool:
+    """ Returns True if the given string S is accepted by the DFA
+
+    The string S will be accepted if ∀a · a ∈ S ⇒ a ∈ sigma, which means that all the characters in S must be in sigma (must be in the alphabet).
+
+    Parameters
+    - - - - - - - - - - - - - - - - - -
+    S : str
+      A string that the DFA will try to process.
+    """
+
+    ## Basic Idea: Search through states in the DFA, since the initial state to the final states
 
   def isValid(self) -> bool:
     """ Returns True if the DFA is an valid automata """
