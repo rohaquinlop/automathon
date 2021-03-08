@@ -1,9 +1,18 @@
 from setuptools import find_packages, setup
+
+#read the contents of the README file
+from os import path
+thisDirectory = path.abspath(path.dirname(__file__))
+with open(path.join(thisDirectory, 'README.md'), encoding='utf-8') as f:
+  longDescription = f.read()
+
 setup(
     name="automathon",
     packages=find_packages(include=['automathon']),
     version='0.0.0',
     description="A Python library for simulating finite automata",
+    long_description=longDescription,
+    long_description_content_type="text/markdown",
     author="Robin Hafid Quintero Lopez",
     license="GNU General Public License v2.0",
     install_requires=[],
@@ -22,3 +31,4 @@ setup(
         'Programming Language :: Python :: 3'
     ]
 )
+
