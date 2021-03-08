@@ -9,7 +9,7 @@ with open(path.join(thisDirectory, 'README.md'), encoding='utf-8') as f:
 setup(
     name="automathon",
     packages=find_packages(include=['automathon']),
-    version='0.0.0',
+    version='0.0.1',
     description="A Python library for simulating finite automata",
     long_description=longDescription,
     long_description_content_type="text/markdown",
