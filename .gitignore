@@ -7,4 +7,5 @@ virtualEnv.sh
 automathon/__pycache__/
 automathon/finiteAutomata/__pycache__/
 tests/__pycache__/
+build/
 
