@@ -1,5 +1,6 @@
 # Exceptions module
 from automathon.errors.errors import *
+from collections import deque
 
 class DFA():
   """A Class used to represent a Deterministic Finite Automaton
@@ -81,30 +82,60 @@ class DFA():
       A string that the DFA will try to process.
     """
 
-    ## Basic Idea: Search through states in the DFA, since the initial state to the final states
+    ## Basic Idea: Search through states (delta) in the DFA, since the initial state to the final states
+
+    ## BFS states
+
+    q = deque() ## queue -> states from i to last character in S | (index, state)
+    q.append( [0, self.initialState] ) ## Starts from 0
+    ans = False ## Flag
+
+    while q and not ans:
+      frontQ = q.popleft()
+      idx = frontQ[0]
+      state = frontQ[1]
+
+      if idx == len(S):
+        ans = True
+      elif S[idx] not in self.sigma:
+        raise InputError(S[idx], 'Is not declared in sigma')
+      else:
+        ## Search through states
+        for transition in self.delta[state].items():
+          ## transition = ('1', 'q0')
+          if S[idx] == transition[0]:
+            q.append( [idx+1, transition[1]] )
+
+    if S == "":
+      ans = True
+
+    return ans
+
 
   def isValid(self) -> bool:
     """ Returns True if the DFA is an valid automata """
 
     #Validate if the initial state is in the set Q
     if self.initialState not in self.Q:
-      return False
+      raise SigmaError(self.initialState, 'Is not declared in Q')
 
     #Validate if the delta transitions are in the set Q
     for d in self.delta:
       if d not in self.Q:
-        return False
+        raise SigmaError(d, 'Is not declared in Q')
 
       #Validate if the d transitions are valid
       for s in self.delta[d]:
-        if s not in self.sigma or self.delta[d][s] not in self.Q:
-          return False
+        if s not in self.sigma:
+          raise SigmaError(s, 'Is not declared in sigma')
+        elif self.delta[d][s] not in self.Q:
+          raise SigmaError(self.delta[d][s], 'Is not declared Q')
 
 
     #Validate if the final state are in Q
     for f in self.F:
       if f not in self.Q:
-        return False
+        raise SigmaError(f, 'Is not declared in Q')
 
     #None of the above cases failed then this DFA is valid
     return True
