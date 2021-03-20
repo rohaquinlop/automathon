@@ -19,3 +19,21 @@ class InputError(Error):
     self.expression = expression
     self.message = message
 
+
+class SigmaError(Error):
+  """Exception raised for errors in the transition.
+
+  Attributes
+  - - - - - - - - - - - - - - - - - -
+
+    expression : str
+      Input expression in which the error ocurred.
+
+    message : str
+      Explaination of the error.
+  """
+
+  def __init__(self, expression, message):
+    self.expression = expression
+    self.message = message
+
