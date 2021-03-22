@@ -1,2 +1,2 @@
-from automathon.finiteAutomata.dfa import DFA
-from automathon.finiteAutomata.nfa import NFA
+from .finiteAutomata.dfa import DFA
+from .finiteAutomata.nfa import NFA
