@@ -1,4 +1,4 @@
-from automathon.finiteAutomata.dfa import *
+from automathon import DFA
 from automathon.errors.errors import *
 import pytest
 
