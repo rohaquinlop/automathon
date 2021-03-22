@@ -22,6 +22,7 @@ pip install automathon
 ## Basic Example
 
 ![](https://upload.wikimedia.org/wikipedia/commons/9/94/DFA_example_multiplies_of_3.svg)
+
 Self-made, Public domain, via Wikimedia Commons
 
 ##### Representing the previous automata
