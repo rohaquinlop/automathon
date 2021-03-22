@@ -26,6 +26,12 @@ def test_dfa_accept_input2():
   assert 'Is not declared in sigma' in str(excinfo.value)
 
 
+def test_dfa_accept_input3():
+  ##Test midterm 1 Computability 2021-1
+  fa = DFA({'q0', 'q1', 'q2', 'q3'}, {'0', '1'}, { 'q0': {'0': 'q1'}, 'q1': {'1' : 'q2'}, 'q2': {'0' : 'q3'}, 'q3': {'1': 'q2'} }, 'q0', {'q3'})
+
+  assert fa.accept("0101010101010") == True
+
 def test_InputError():
   with pytest.raises(InputError) as excinfo:
     
