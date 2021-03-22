@@ -9,7 +9,7 @@ with open(path.join(thisDirectory, 'README.md'), encoding='utf-8') as f:
 setup(
     name="automathon",
     packages=find_packages(include=['automathon']),
-    version='0.0.1',
+    version='0.0.2',
     description="A Python library for simulating finite automata",
     long_description=longDescription,
     long_description_content_type="text/markdown",
@@ -21,7 +21,7 @@ setup(
     test_suite='tests',
     author_email='rohaquinlop301@gmail.com',
     url='https://github.com/rohaquinlop/automathon',
-    download_url="https://github.com/rohaquinlop/automathon/archive/v_000.tar.gz",
+    download_url="https://github.com/rohaquinlop/automathon/archive/refs/tags/v_001.tar.gz",
     keywords=["python", "automata", "automata", "automathon"],
     classifiers=[
         'Development Status :: 3 - Alpha',
