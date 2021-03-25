@@ -43,6 +43,7 @@ class DFA():
   - - - - - - - - - - - - - - - - - -
 
   isValid() -> bool : Returns True if the DFA is a valid automata
+  accept(S : str) -> bool : Returns True if the given string S is accepted by the DFA
   """
 
   def __init__(self, Q : set, sigma : set, delta : dict, initialState : str, F : set):
@@ -96,7 +97,8 @@ class DFA():
       state = frontQ[1]
 
       if idx == len(S):
-        ans = True
+        if state in self.F:
+          ans = True
       elif S[idx] not in self.sigma:
         raise InputError(S[idx], 'Is not declared in sigma')
       else:
