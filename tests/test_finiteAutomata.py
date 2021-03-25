@@ -10,7 +10,7 @@ def test_dfa_isValid():
 def test_dfa_accept_Epsilon():
   fa = DFA({'q0', 'q1', 'q2'}, {'0', '1'},  { 'q0' : {'0' : 'q0', '1' : 'q1'},'q1' : {'0' : 'q2', '1' : 'q0'}, 'q2' : {'0' : 'q1', '1' : 'q2'} }, 'q0', {'q0'})
 
-  assert fa.accept("") == True ##Epsilon
+  assert fa.accept("") == True ##Empty String
 
 def test_dfa_accept_input1():
   fa = DFA({'q0', 'q1', 'q2'}, {'0', '1'},  { 'q0' : {'0' : 'q0', '1' : 'q1'},'q1' : {'0' : 'q2', '1' : 'q0'}, 'q2' : {'0' : 'q1', '1' : 'q2'} }, 'q0', {'q0'})
@@ -40,3 +40,11 @@ def test_InputError():
 
     f()
   assert 'Is not valid' in str(excinfo.value)
+
+
+def test_complement():
+  fa = DFA({'q0', 'q1', 'q2'}, {'0', '1'},  { 'q0' : {'0' : 'q0', '1' : 'q1'},'q1' : {'0' : 'q2', '1' : 'q0'}, 'q2' : {'0' : 'q1', '1' : 'q2'} }, 'q0', {'q0'})
+
+  notfa = fa.complement()
+
+  assert notfa.accept("001001") == False

@@ -44,6 +44,7 @@ class DFA():
 
   isValid() -> bool : Returns True if the DFA is a valid automata
   accept(S : str) -> bool : Returns True if the given string S is accepted by the DFA
+  complement() -> DFA : Returns the complement of the DFA
   """
 
   def __init__(self, Q : set, sigma : set, delta : dict, initialState : str, F : set):
@@ -142,3 +143,12 @@ class DFA():
     #None of the above cases failed then this DFA is valid
     return True
 
+  def complement(self) -> 'DFA':
+    """Returns the complement of the DFA."""
+    Q = self.Q
+    sigma = self.sigma
+    delta = self.delta
+    initialState = self.initialState
+    F = { state for state in self.Q if state not in self.F}
+    
+    return DFA(Q, sigma, delta, initialState, F)
