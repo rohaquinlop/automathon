@@ -28,6 +28,8 @@ pip install automathon --upgrade
 
 ## Basic Example
 
+## Deterministic Finite Automata
+
 ![](https://upload.wikimedia.org/wikipedia/commons/9/94/DFA_example_multiplies_of_3.svg)
 
 Self-made, Public domain, via Wikimedia Commons
@@ -60,6 +62,57 @@ automata1.isValid()   #True
 ```Python
 automata1.accept("001001")   #True
 automata1.accept("00100")    #False
+```
+
+
+## Non-Deterministic Finite Automata
+![](http://www.r9paul.org/wp-content/uploads/2008/12/nfa_example.jpg)
+
+Image taken from: http://www.r9paul.org/blog/2008/nondeterministic-finite-state-machine/
+
+### Representing the previous automata
+
+```Python
+from automathon import NFA
+
+## Epsilon Transition is denoted by '' -> Empty string
+Q = {'q1', 'q2', 'q3', 'q4'}
+sigma = {'0', '1'}
+delta = {
+          'q1' : {
+                  '0' : ['q1'],
+                  '1' : ['q1', 'q2']
+                  },
+          'q2' : {
+                  '0' : ['q3'],
+                  '' : ['q3']
+                  },
+          'q3' : {
+                  '1' : ['q4'],
+                  },
+          'q4' : {
+                  '0' : ['q4'],
+                  '1' : ['q4'],
+                  },
+        }
+initialState = 'q1'
+F = {'q4'}
+
+automata2 = NFA(Q, sigma, delta, initialState, F)
+## This is an example about creating a NFA with the library
+```
+
+### Verify if the automata is valid
+
+```Python
+automata2.isValid()   #True
+```
+
+### Verify if the automata accept a string
+
+```Python
+automata2.accept("0000011")   #True
+automata2.accept("000001")    #False
 ```
 
 ### Errors
