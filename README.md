@@ -64,6 +64,13 @@ automata1.accept("001001")   #True
 automata1.accept("00100")    #False
 ```
 
+### Get the complement of the automata
+
+```Python
+notautomata1 = automata1.complement()
+notautomata1.accept("00100")    #True
+```
+
 
 ## Non-Deterministic Finite Automata
 ![](http://www.r9paul.org/wp-content/uploads/2008/12/nfa_example.jpg)
@@ -113,6 +120,13 @@ automata2.isValid()   #True
 ```Python
 automata2.accept("0000011")   #True
 automata2.accept("000001")    #False
+```
+
+### Get the complement of the automata
+
+```Python
+notautomata2 = automata1.complement()
+notautomata2.accept("000001")    #True
 ```
 
 ### Errors
