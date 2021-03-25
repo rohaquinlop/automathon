@@ -64,7 +64,7 @@ automata1.accept("001001")   #True
 automata1.accept("00100")    #False
 ```
 
-### Get the complement of the automata
+### Get the automata's complement
 
 ```Python
 notautomata1 = automata1.complement()
@@ -122,7 +122,7 @@ automata2.accept("0000011")   #True
 automata2.accept("000001")    #False
 ```
 
-### Get the complement of the automata
+### Get the automata's complement
 
 ```Python
 notautomata2 = automata1.complement()
