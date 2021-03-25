@@ -32,7 +32,7 @@ pip install automathon --upgrade
 
 Self-made, Public domain, via Wikimedia Commons
 
-##### Representing the previous automata
+### Representing the previous automata
 
 ```Python
 from automathon import DFA
@@ -49,15 +49,26 @@ automata1 = DFA(Q, sigma, delta, initialState, F)
 ## This is an example about creating a DFA with the library
 ```
 
-###### Verify if the automata is valid
+### Verify if the automata is valid
 
 ```Python
 automata1.isValid()   #True
 ```
 
-###### Verify if the automata accept a string
+### Verify if the automata accept a string
 
 ```Python
 automata1.accept("001001")   #True
 automata1.accept("00100")    #False
 ```
+
+### Errors
+
+Errors that can be returned during the execution and the cases that can appear.
+
+- **SigmaError**:
+  - The automata contains a initial state or a final state that's not defined on Q.
+  - The automata contains a delta transition that's not defined on Q or in Sigma.
+
+- **InputError**:
+  - The automata is trying to consume an letter that's not defined in sigma.
