@@ -1,6 +1,7 @@
 # Exceptions module
 from automathon.errors.errors import *
 from collections import deque
+from graphviz import Digraph
 
 class DFA():
   """A Class used to represent a Deterministic Finite Automaton
@@ -152,3 +153,21 @@ class DFA():
     F = { state for state in self.Q if state not in self.F}
     
     return DFA(Q, sigma, delta, initialState, F)
+  
+  def view(self, fileName : str):
+    dot = Digraph(name=fileName, format='png')
+
+    dot.graph_attr['rankdir'] = 'LR'
+
+    for f in self.F:
+      dot.node(f, f, shape='doublecircle')
+    
+    for q in self.Q:
+      if q not in self.F:
+        dot.node(q, q, shape='circle')
+    
+    for q in self.delta:
+      for s in self.delta[q]:
+        dot.edge(q, self.delta[q][s], label=s)
+    
+    dot.render()
