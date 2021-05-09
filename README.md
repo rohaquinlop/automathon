@@ -129,6 +129,29 @@ notautomata2 = automata1.complement()
 notautomata2.accept("000001")    #True
 ```
 
+### Visualize the automata
+
+For both, DFA and NFA, the view method enables to visualize the automaton, recives as parameter a String as the file name for the png and svg files.
+
+```Python
+automata1.view("DFA Visualization")
+automata2.view("NFA Visualization")
+```
+
+## Remove Epsilon transitions from NFA
+
+```
+automata3 = automata2.removeEpsilonTransitions()
+automata3.view("NFA without EpsilonTransitions")
+```
+
+## Convert NFA to DFA
+
+```
+automata4 = automata3.getDFA()
+automata4.view("NFA to DFA")
+```
+
 ### Errors
 
 Errors that can be returned during the execution and the cases that can appear.
