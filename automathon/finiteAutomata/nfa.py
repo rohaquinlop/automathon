@@ -268,25 +268,31 @@ class NFA():
     aux = set()
     for qs in Qprime:
       aux.add(str(qs))
+    
+    Qprime = aux.copy()
 
     return NFA(Qprime, self.sigma, deltaPrime, str(initialState), finalStates)
 
   def getDFA(self) -> DFA:
     """Convert the actual NFA to DFA and return it's conversion"""
 
+    localNFA = NFA(self.Q, self.sigma, self.delta, self.initialState, self.F)
+    flag = False
+
     ##verify if have epsilon transitions
     for q in self.Q:
-      if q in self.delta:
+      if q in self.delta and not flag:
         for transitionValue in self.delta[q]:
-          if transitionValue == '':
-            return self.removeEpsilonTransitions()
+          if transitionValue == '' and not flag:
+            localNFA = self.removeEpsilonTransitions()
+            flag = True
 
     Qprime = []
     deltaPrime = dict()
 
     queue = deque()
-    visited = [[self.initialState]]
-    queue.append([self.initialState])
+    visited = [[localNFA.initialState]]
+    queue.append([localNFA.initialState])
 
     while queue:
       qs = queue.pop() ## state Q
@@ -294,9 +300,9 @@ class NFA():
       T = dict() ## {str : list}
 
       for q in qs:
-        if q in self.delta:
-          for s in self.delta[q]:
-            tmp = self.delta[q][s].copy()
+        if q in localNFA.delta:
+          for s in localNFA.delta[q]:
+            tmp = localNFA.delta[q][s].copy()
             if s in T:
               ## avoid add repeated values
               T[s].extend( [k for k in tmp if k not in T[s]] )
@@ -318,7 +324,7 @@ class NFA():
 
     for qs in Qprime:
       for q in qs:
-        if q in self.F:
+        if q in localNFA.F:
           Fprime.add(str(qs))
           break
     
@@ -330,7 +336,7 @@ class NFA():
     
     Qprime = aux
     
-    return DFA(Qprime, self.sigma, deltaPrime, str([self.initialState]), Fprime)
+    return DFA(Qprime, localNFA.sigma, deltaPrime, str([localNFA.initialState]), Fprime)
 
   def view(self, fileName: str):
     dot = Digraph(name=fileName, format='png')
