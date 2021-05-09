@@ -2,6 +2,7 @@
 from automathon.errors.errors import *
 from collections import deque
 from graphviz import Digraph
+from automathon.finiteAutomata.dfa import DFA
 
 class NFA():
   """A Class used to represent a Non-Deterministic Finite Automaton
@@ -172,11 +173,73 @@ class NFA():
     F = { state for state in self.Q if state not in self.F}
     
     return NFA(Q, sigma, delta, initialState, F)
-  
+
+  def removeEpsilonTransitions(self) -> 'NFA':
+    ##TODO implement algorithm that removes epsilon transitions
+    deltaPrime = dict()
+
+  def getDFA(self) -> DFA:
+    """Convert the actual NFA to DFA and return it's conversion"""
+
+    Qprime = []
+    deltaPrime = dict()
+
+    queue = deque()
+    visited = [[self.initialState]]
+    queue.append([self.initialState])
+
+    while queue:
+      qs = queue.pop() ## state Q
+
+      T = dict() ## {str : list}
+
+      for q in qs:
+        if q in self.delta:
+          for s in self.delta[q]:
+            tmp = self.delta[q][s].copy()
+            if s in T:
+              ## avoid add repeated values
+              for v in tmp:
+                if v not in T[s]:
+                  T[s].append(v)
+            else:
+              T[s] = tmp
+      
+      for t in T:
+        T[t].sort()
+        tmp = T[t].copy()
+        if tmp not in visited:
+          queue.append(tmp)
+          visited.append(tmp)
+        T[t] = str(T[t])
+      
+      deltaPrime[str(qs)] = T
+      Qprime.append(qs)
+    
+    Fprime = set()
+
+    for qs in Qprime:
+      for q in qs:
+        if q in self.F:
+          Fprime.add(str(qs))
+          break
+    
+    aux = set()
+
+    
+    for qs in Qprime:
+      aux.add(str(qs))
+    
+    Qprime = aux
+    
+    return DFA(Qprime, self.sigma, deltaPrime, str([self.initialState]), Fprime)
+
   def view(self, fileName: str):
     dot = Digraph(name=fileName, format='png')
     
     dot.graph_attr['rankdir'] = 'LR'
+
+    dot.node("", "", shape='plaintext')
 
     for f in self.F:
       dot.node(f, f, shape='doublecircle')
@@ -184,6 +247,8 @@ class NFA():
     for q in self.Q:
       if q not in self.F:
         dot.node(q, q, shape='circle')
+    
+    dot.edge("", self.initialState, label="")
     
     for q in self.delta:
       for s in self.delta[q]:

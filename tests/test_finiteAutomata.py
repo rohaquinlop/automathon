@@ -158,3 +158,51 @@ def test_nfa_accept_input3():
   fa = NFA(Q, sigma, delta, initialState, F)
 
   assert fa.accept("000001") == False ## Don't make Epsilon Transition
+
+def test_nfa_dfa():
+  Q = {'q0', 'q1', 'q2'}
+  sigma = {'a', 'b'}
+  delta = {
+            'q0' : {
+                    'a' : ['q0'],
+                    'b' : ['q0', 'q1']
+                   },
+            'q1' : {
+                    'b' : ['q2'],
+                   }
+          }
+  initialState = 'q0'
+  F = {'q2'}
+
+  fa = NFA(Q, sigma, delta, initialState, F)
+  dfa = fa.getDFA()
+
+  assert dfa.isValid() == True
+
+def test_nfa_dfa1():
+  Q = {'q1', 'q2', 'q3', 'q4'}
+  sigma = {'0', '1'}
+  delta = {
+            'q1' : {
+                    '0' : ['q1'],
+                    '1' : ['q1', 'q2']
+                    },
+            'q2' : {
+                    '0' : ['q3'],
+                    },
+            'q3' : {
+                    '1' : ['q4'],
+                    },
+            'q4' : {
+                    '0' : ['q4'],
+                    '1' : ['q4'],
+                    },
+          }
+  initialState = 'q1'
+  F = {'q4'}
+
+  fa = NFA(Q, sigma, delta, initialState, F)
+
+  tmp = fa.getDFA()
+
+  assert tmp.isValid() == True

@@ -159,6 +159,8 @@ class DFA():
 
     dot.graph_attr['rankdir'] = 'LR'
 
+    dot.node("", "", shape='plaintext')
+
     for f in self.F:
       dot.node(f, f, shape='doublecircle')
     
@@ -166,6 +168,8 @@ class DFA():
       if q not in self.F:
         dot.node(q, q, shape='circle')
     
+    dot.edge("", self.initialState, label="")
+
     for q in self.delta:
       for s in self.delta[q]:
         dot.edge(q, self.delta[q][s], label=s)
