@@ -103,12 +103,12 @@ class DFA():
           ans = True
       elif S[idx] not in self.sigma:
         raise InputError(S[idx], 'Is not declared in sigma')
-      else:
-        ## Search through states
-        for transition in self.delta[state].items():
-          ## transition = ('1', 'q0')
-          if S[idx] == transition[0]:
-            q.append( [idx+1, transition[1]] )
+      elif state in self.delta:
+          ## Search through states
+          for transition in self.delta[state].items():
+            ## transition = ('1', 'q0')
+            if S[idx] == transition[0]:
+              q.append( [idx+1, transition[1]] )
 
     if S == "":
       ans = True

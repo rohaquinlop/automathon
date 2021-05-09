@@ -113,7 +113,7 @@ class NFA():
           ans = True
       elif S[idx] not in self.sigma:
         raise InputError(S[idx], 'Is not declared in sigma')
-      else:
+      elif state in self.delta:
         ## Search through states
         for transition in self.delta[state].items():
           d = transition[0]
@@ -173,13 +173,113 @@ class NFA():
     F = { state for state in self.Q if state not in self.F}
     
     return NFA(Q, sigma, delta, initialState, F)
+  
+  def getEClosure(self, q):
+    ans = [q]
+
+    if q in self.delta:
+      if '' in self.delta[q]:
+        for st in self.delta[q]['']:
+          ans.extend([k for k in self.getEClosure(st) if k not in ans])
+    return ans
 
   def removeEpsilonTransitions(self) -> 'NFA':
-    ##TODO implement algorithm that removes epsilon transitions
+    """Returns a copy of the actual NFA that doesn't contain epsilon transitions"""
+
+    Qprime = []
     deltaPrime = dict()
+
+    eClosures = []
+
+    isolatedNodes = []
+
+    tmp = self.getEClosure(self.initialState)
+    qVisiteds = tmp
+
+    if len(tmp) == 1:
+      isolatedNodes.extend(tmp.copy())
+    elif len(tmp) > 1:
+      eClosures.append(tmp.copy())
+
+    for q in self.Q:
+      tmp = []
+      if q not in qVisiteds:
+        tmp = self.getEClosure(q)
+      qVisiteds.extend([k for k in tmp if k not in qVisiteds])
+      if len(tmp) == 1:
+        isolatedNodes.extend(tmp.copy())
+      elif len(tmp) > 1:
+        eClosures.append(tmp.copy())
+    
+    ## MarkClosures
+    nodeClosure = dict()
+    valueClosure = dict()
+    cnt = 0
+
+    for c in isolatedNodes:
+      cnt += 1
+      nodeClosure[c] = cnt
+      valueClosure[cnt] = [c]
+      Qprime.append([c])
+
+    for c in eClosures:
+      cnt += 1
+      for e in c:
+        if e in nodeClosure:
+          Qprime.remove([e])
+        nodeClosure[e] = cnt
+      valueClosure[cnt] = c
+      Qprime.append(c)
+
+    auxDelta = dict()
+    for qs in Qprime: ## Qprime = [ [], [], ...]
+      ##Iterate over the states
+      auxDelta[str(qs)] = dict() ##Initialize the auxiliar delta
+      for transitionValue in self.sigma:
+        ## get the values
+        if transitionValue != '':
+          visited = []
+          auxDelta[str(qs)][transitionValue] = []
+          for q in qs:
+            if q in self.delta and transitionValue in self.delta[q]:
+              for s in self.delta[q][transitionValue]:
+                if nodeClosure[s] not in visited:
+                  visited.append(nodeClosure[s])
+                  auxDelta[str(qs)][transitionValue].append(nodeClosure[s])
+    
+    for qs in auxDelta:
+      deltaPrime[qs] = dict()
+      for transitionValue in auxDelta[qs]:
+        deltaPrime[qs][transitionValue] = []
+        for idValue in auxDelta[qs][transitionValue]:
+          deltaPrime[qs][transitionValue].append( str(valueClosure[idValue]) )
+
+    finalStates = set()
+    for qs in Qprime:
+      for q in qs:
+        if q in self.F:
+          finalStates.add(str(qs))
+          break
+    
+    initialState = []
+    for qs in valueClosure[nodeClosure[str(self.initialState)]]:
+      initialState.append(qs)
+    
+    aux = set()
+    for qs in Qprime:
+      aux.add(str(qs))
+
+    return NFA(Qprime, self.sigma, deltaPrime, str(initialState), finalStates)
 
   def getDFA(self) -> DFA:
     """Convert the actual NFA to DFA and return it's conversion"""
+
+    ##verify if have epsilon transitions
+    for q in self.Q:
+      if q in self.delta:
+        for transitionValue in self.delta[q]:
+          if transitionValue == '':
+            return self.removeEpsilonTransitions()
 
     Qprime = []
     deltaPrime = dict()
@@ -199,9 +299,7 @@ class NFA():
             tmp = self.delta[q][s].copy()
             if s in T:
               ## avoid add repeated values
-              for v in tmp:
-                if v not in T[s]:
-                  T[s].append(v)
+              T[s].extend( [k for k in tmp if k not in T[s]] )
             else:
               T[s] = tmp
       
