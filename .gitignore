@@ -4,6 +4,7 @@ automathon.egg-info/
 workspace.code*
 virtualEnv.sh
 runTests.sh
+buildPackage.sh
 .eggs/
 automathon/__pycache__/
 automathon/finiteAutomata/__pycache__/
