@@ -262,3 +262,141 @@ def test_nfa_removeEpsilon1():
   dfa = nfa.getDFA()
 
   assert dfa.accept("0000011") == True ## Make Epsilon Transition
+
+def test_dfa_product():
+  Q = {'A', 'B'}
+  sigma = {'0', '1'}
+  delta = {
+            'A' : {
+                    '0' : 'A',
+                    '1' : 'B'
+                   },
+            'B' : {
+                    '0' : 'B',
+                    '1' : 'A'
+                   }
+          }
+  initialState = 'A'
+  F = {'B'}
+  dfa = DFA(Q, sigma, delta, initialState, F)
+
+  Q1 = {'R', 'S', 'T', 'U'}
+  sigma1 = {'0', '1'}
+  delta1 = {
+            'R' : {
+                    '0' : 'S',
+                    '1' : 'R'
+                  },
+            'S' : {
+                    '0' : 'T',
+                    '1' : 'R'
+                  },
+            'T' : {
+                    '0' : 'U',
+                    '1' : 'R'
+                  },
+            'U' : {
+                    '0' : 'U',
+                    '1' : 'U'
+                  }
+          }
+  initialState1 = 'R'
+  F1 = {'U'}
+
+  dfa1 = DFA(Q1, sigma1, delta1, initialState1, F1)
+
+  dfa2 = dfa.product(dfa1)
+
+  assert dfa2.isValid() == True
+
+def test_dfa_product1():
+  Q = {'A', 'B'}
+  sigma = {'0', '1'}
+  delta = {
+            'A' : {
+                    '0' : 'A',
+                    '1' : 'B'
+                   },
+            'B' : {
+                    '0' : 'B',
+                    '1' : 'A'
+                   }
+          }
+  initialState = 'A'
+  F = {'B'}
+  dfa = DFA(Q, sigma, delta, initialState, F)
+
+  Q1 = {'R', 'S', 'T', 'U'}
+  sigma1 = {'0', '1'}
+  delta1 = {
+            'R' : {
+                    '0' : 'S',
+                    '1' : 'R'
+                  },
+            'S' : {
+                    '0' : 'T',
+                    '1' : 'R'
+                  },
+            'T' : {
+                    '0' : 'U',
+                    '1' : 'R'
+                  },
+            'U' : {
+                    '0' : 'U',
+                    '1' : 'U'
+                  }
+          }
+  initialState1 = 'R'
+  F1 = {'U'}
+
+  dfa1 = DFA(Q1, sigma1, delta1, initialState1, F1)
+
+  dfa2 = dfa.product(dfa1)
+
+  assert dfa2.accept("0001") == True
+
+def test_dfa_product2():
+  Q = {'A', 'B'}
+  sigma = {'0', '1'}
+  delta = {
+            'A' : {
+                    '0' : 'A',
+                    '1' : 'B'
+                   },
+            'B' : {
+                    '0' : 'B',
+                    '1' : 'A'
+                   }
+          }
+  initialState = 'A'
+  F = {'B'}
+  dfa = DFA(Q, sigma, delta, initialState, F)
+
+  Q1 = {'R', 'S', 'T', 'U'}
+  sigma1 = {'0', '1'}
+  delta1 = {
+            'R' : {
+                    '0' : 'S',
+                    '1' : 'R'
+                  },
+            'S' : {
+                    '0' : 'T',
+                    '1' : 'R'
+                  },
+            'T' : {
+                    '0' : 'U',
+                    '1' : 'R'
+                  },
+            'U' : {
+                    '0' : 'U',
+                    '1' : 'U'
+                  }
+          }
+  initialState1 = 'R'
+  F1 = {'U'}
+
+  dfa1 = DFA(Q1, sigma1, delta1, initialState1, F1)
+
+  dfa2 = dfa.product(dfa1)
+
+  assert dfa2.accept("00010010") == False
