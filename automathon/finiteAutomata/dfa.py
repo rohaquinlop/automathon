@@ -154,6 +154,43 @@ class DFA():
     
     return DFA(Q, sigma, delta, initialState, F)
   
+  def product(self, M : 'DFA') -> 'DFA':
+    """Given a DFA M returns the product automaton"""
+    delta = dict()
+    Q = set()
+    F = set()
+    sigma = self.sigma.intersection(M.sigma)
+
+    for state, transition in self.delta.items():
+      ## i : str, j : dict(sigma, Q)
+      for stateM, transitionM in M.delta.items():
+        ## stateM : str, transitionM : dict(sigma, Q)
+        for s in transition:
+          if s in transitionM:
+            ## sigma value in common
+            sigma.add(s)
+
+            tmp = str([state, stateM])
+            tmp1 = str([transition[s], transitionM[s]])
+            aux = dict()
+            aux[s] = tmp1
+
+            Q.add(tmp)
+            Q.add(tmp1)
+
+            if state in self.F and stateM in M.F:
+              F.add(tmp)
+            
+            if transition[s] in self.F and transitionM[s] in M.F:
+              F.add(tmp1)
+
+            if tmp in delta:
+              delta[tmp].update(aux)
+            else:
+              delta[tmp] = aux
+    
+    return DFA(Q, sigma, delta, str([self.initialState, M.initialState]), F)
+  
   def view(self, fileName : str):
     dot = Digraph(name=fileName, format='png')
 
