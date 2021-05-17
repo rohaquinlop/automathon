@@ -491,6 +491,4 @@ def test_dfa_union1():
 
   dfa2 = dfa.union(dfa1)
 
-  dfa2.view("Union")
-
   assert dfa2.accept("0011000") == True
