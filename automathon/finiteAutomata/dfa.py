@@ -213,7 +213,6 @@ class DFA():
     return DFA(Q, sigma, delta, str([self.initialState, M.initialState]), F)
 
   def union(self, M : 'DFA') -> 'DFA':
-    ##TODO: Implement using epsilon transitions
     """Given a DFA M returns the union automaton"""
     tmpNFA = self.getNFA()
     tmpNFA = tmpNFA.union(M.getNFA()).removeEpsilonTransitions()
