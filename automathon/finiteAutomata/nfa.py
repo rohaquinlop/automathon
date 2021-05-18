@@ -338,6 +338,61 @@ class NFA():
     
     return DFA(Qprime, localNFA.sigma, deltaPrime, str([localNFA.initialState]), Fprime)
 
+  def union(self, M : 'NFA') -> 'NFA':
+    """Given a NFA M returns the union automaton"""
+    sigma = self.sigma.union(M.sigma)
+    Q = set()
+    F = set()
+    initialState = "q0"
+    realValueSelf = dict()
+    realValueM = dict()
+    selfDelta = dict()
+    mDelta = dict()
+    ## Fix possible errors when using the dictonaries with the name of the states
+    for i, q in enumerate(self.Q, 1):
+      realValueSelf[q] = "q{}".format(i)
+      Q.add(realValueSelf[q])
+    
+    for i, s in enumerate(M.Q):
+      realValueM[s] = "s{}".format(i)
+      Q.add(realValueM[s])
+    
+    for q in self.F:
+      F.add(realValueSelf[q])
+    
+    for q in M.F:
+      F.add(realValueM[q])
+
+    #Replace the values
+    for q, transition in self.delta.items():
+      ## q : string, transition : {string -> list(string)}
+      tmpDict = dict()
+      for s, states in transition.items():
+        tmpStates = []
+        for state in states:
+          tmpStates.append(realValueSelf[state])
+        
+        tmpDict[s] = tmpStates.copy()
+      selfDelta[realValueSelf[q]] = tmpDict.copy()
+    
+    for q, transition in M.delta.items():
+      ## q : string, transition : {string -> list(string)}
+      tmpDict = dict()
+      for s, states in transition.items():
+        tmpStates = []
+        for state in states:
+          tmpStates.append(realValueM[state])
+        
+        tmpDict[s] = tmpStates.copy()
+      mDelta[realValueM[q]] = tmpDict.copy()
+    
+    delta = {**selfDelta, **mDelta}
+
+    delta[initialState] = {
+      '' : [realValueSelf[self.initialState], realValueM[M.initialState]] }
+    
+    return NFA(Q, sigma, delta, initialState, F)
+
   def view(self, fileName: str):
     dot = Digraph(name=fileName, format='png')
     
