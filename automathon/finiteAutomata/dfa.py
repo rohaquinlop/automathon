@@ -2,6 +2,7 @@
 from automathon.errors.errors import *
 from collections import deque
 from graphviz import Digraph
+from typing import TYPE_CHECKING
 
 class DFA():
   """A Class used to represent a Deterministic Finite Automaton
@@ -154,6 +155,26 @@ class DFA():
     
     return DFA(Q, sigma, delta, initialState, F)
   
+  def getNFA(self):
+    from automathon.finiteAutomata.nfa import NFA
+    """Convert the actual DFA to NFA class and return it's conversion"""
+    Q = self.Q.copy()
+    delta = dict()
+    initialState = self.initialState
+    F = self.F.copy()
+    sigma = self.sigma
+
+    for state, transition in self.delta.items():
+      ## state : str, transition : dict(sigma, Q)
+      tmp = dict()
+      for s, q in transition.items():
+        ## s : sigma
+        tmp[s] = list(q)
+      
+      delta[state] = tmp
+    
+    return NFA(Q, sigma, delta, initialState, F)
+  
   def product(self, M : 'DFA') -> 'DFA':
     """Given a DFA M returns the product automaton"""
     delta = dict()
@@ -192,41 +213,12 @@ class DFA():
     return DFA(Q, sigma, delta, str([self.initialState, M.initialState]), F)
 
   def union(self, M : 'DFA') -> 'DFA':
-    """Given a DFA M returns the product automaton"""
-    delta = dict()
-    Q = set()
-    F = set()
-    sigma = self.sigma.intersection(M.sigma)
+    ##TODO: Implement using epsilon transitions
+    """Given a DFA M returns the union automaton"""
+    tmpNFA = self.getNFA()
+    tmpNFA = tmpNFA.union(M.getNFA()).removeEpsilonTransitions()
 
-    for state, transition in self.delta.items():
-      ## i : str, j : dict(sigma, Q)
-      for stateM, transitionM in M.delta.items():
-        ## stateM : str, transitionM : dict(sigma, Q)
-        for s in transition:
-          if s in transitionM:
-            ## sigma value in common
-            sigma.add(s)
-
-            tmp = str([state, stateM])
-            tmp1 = str([transition[s], transitionM[s]])
-            aux = dict()
-            aux[s] = tmp1
-
-            Q.add(tmp)
-            Q.add(tmp1)
-
-            if state in self.F or stateM in M.F:
-              F.add(tmp)
-            
-            if transition[s] in self.F or transitionM[s] in M.F:
-              F.add(tmp1)
-
-            if tmp in delta:
-              delta[tmp].update(aux)
-            else:
-              delta[tmp] = aux
-    
-    return DFA(Q, sigma, delta, str([self.initialState, M.initialState]), F)
+    return tmpNFA.getDFA()
 
   def view(self, fileName : str):
     dot = Digraph(name=fileName, format='png')
