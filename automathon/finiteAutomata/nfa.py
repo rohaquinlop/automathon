@@ -393,6 +393,14 @@ class NFA():
     
     return NFA(Q, sigma, delta, initialState, F)
 
+  def product(self, M : 'NFA') -> 'NFA':
+    """Given a DFA M returns the product automaton"""
+    ##Using Demorgan's laws : AB = (A' + B')'
+    ##TODO: Create tests
+    nfa = self.complement().union(M.complement())
+
+    return nfa.complement()
+
   def view(self, fileName: str):
     dot = Digraph(name=fileName, format='png')
     
