@@ -8,3 +8,4 @@ automathon/finiteAutomata/__pycache__/
 tests/__pycache__/
 automathon/errors/__pycache__/
 build/
+.idea/
