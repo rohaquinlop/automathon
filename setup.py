@@ -10,7 +10,7 @@ setup(
     name="automathon",
     packages=find_packages(include=['automathon', 'automathon.finiteAutomata', 'automathon.errors']),
     include_package_data=True,
-    version='0.0.6',
+    version='0.0.7',
     description="A Python library for simulating finite automata",
     long_description=longDescription,
     long_description_content_type="text/markdown",
