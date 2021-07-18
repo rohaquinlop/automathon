@@ -396,6 +396,7 @@ class NFA:
     ##Using Demorgan's laws : AB = (A' + B')'
     ##TODO: Create tests
     ##TODO: Add to documentation
+    ##TODO: Fix code, implementation is wrong
     nfa = self.complement().union(M.complement())
     
     return nfa.complement()
