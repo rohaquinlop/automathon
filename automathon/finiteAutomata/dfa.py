@@ -156,6 +156,7 @@ class DFA:
   def getNFA(self):
     from automathon.finiteAutomata.nfa import NFA
     """Convert the actual DFA to NFA class and return it's conversion"""
+    ##TODO: Create tests, add to documentation
     Q = self.Q.copy()
     delta = dict()
     initialState = self.initialState
@@ -175,6 +176,7 @@ class DFA:
   
   def product(self, M: 'DFA') -> 'DFA':
     """Given a DFA M returns the product automaton"""
+    ##TODO: Add to documentation
     delta = dict()
     Q = set()
     F = set()
@@ -212,6 +214,7 @@ class DFA:
   
   def union(self, M: 'DFA') -> 'DFA':
     """Given a DFA M returns the union automaton"""
+    ##TODO: Add to documentation
     tmpNFA = self.getNFA()
     tmpNFA = tmpNFA.union(M.getNFA()).removeEpsilonTransitions()
     

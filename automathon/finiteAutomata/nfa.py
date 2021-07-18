@@ -338,6 +338,7 @@ class NFA:
   
   def union(self, M: 'NFA') -> 'NFA':
     """Given a NFA M returns the union automaton"""
+    ##TODO: Create tests, add to documentation
     sigma = self.sigma.union(M.sigma)
     Q = set()
     F = set()
@@ -392,7 +393,7 @@ class NFA:
   def product(self, M: 'NFA') -> 'NFA':
     """Given a DFA M returns the product automaton"""
     ##Using Demorgan's laws : AB = (A' + B')'
-    ##TODO: Create tests
+    ##TODO: Create tests, add to documentation
     nfa = self.complement().union(M.complement())
     
     return nfa.complement()
