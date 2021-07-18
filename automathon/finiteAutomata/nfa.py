@@ -343,6 +343,7 @@ class NFA:
     Q = set()
     F = set()
     initialState = "q0"
+    Q.add(initialState)
     realValueSelf = dict()
     realValueM = dict()
     selfDelta = dict()
