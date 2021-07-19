@@ -393,13 +393,14 @@ class NFA:
   
   def product(self, M: 'NFA') -> 'NFA':
     """Given a DFA M returns the product automaton"""
-    ##Using Demorgan's laws : AB = (A' + B')'
-    ##TODO: Create tests
+    ##Using DFA conversion
     ##TODO: Add to documentation
-    ##TODO: Fix code, implementation is wrong
-    nfa = self.complement().union(M.complement())
+    a = self.getDFA()
+    b = M.getDFA()
     
-    return nfa.complement()
+    nfa = a.product(b).getNFA()
+    
+    return nfa
   
   def view(self, fileName: str):
     dot = Digraph(name=fileName, format='png')

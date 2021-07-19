@@ -187,6 +187,49 @@ def test_dfa_product():
   assert dfa2.accept("0001") == True
   assert dfa2.accept("00010010") == False
 
+def test_dfa_product1():
+  Q = {'A', 'B'}
+  sigma = {'a', 'b'}
+  delta = {
+    'A': {
+      'a': 'B',
+      'b': 'A'
+    },
+    'B': {
+      'a': 'A',
+      'b': 'B'
+    }
+  }
+  initialState = 'A'
+  F = {'A'}
+  
+  dfa = DFA(Q, sigma, delta, initialState, F)
+  
+  Q1 = {'C', 'D'}
+  sigma1 = {'a', 'b'}
+  delta1 = {
+    'C': {
+      'a': 'C',
+      'b': 'D'
+    },
+    'D': {
+      'a': 'D',
+      'b': 'C'
+    }
+  }
+  initialState1 = 'C'
+  F1 = {'C'}
+  
+  dfa1 = DFA(Q1, sigma1, delta1, initialState1, F1)
+  
+  dfa2 = dfa.product(dfa1)
+
+  assert dfa2.isValid() == True
+  assert dfa2.accept('') == True
+  assert dfa2.accept('bb') == True
+
+  assert dfa2.accept('b') == False
+
 def test_dfa_union():
   Q = {'A', 'B'}
   sigma = {'0', '1'}
@@ -271,3 +314,49 @@ def test_nfa_union():
   assert nfa2.accept("aaaabbbbaaa") == False
   assert nfa2.accept("bbbbbbbbba") == True
   assert nfa2.accept("aaaaaaaab") == False
+
+def test_nfa_product():
+  Q = {'A', 'B'}
+  sigma = {'a', 'b'}
+  delta = {
+    'A' : {
+      'a' : ['B'],
+      'b' : ['A']
+    },
+    'B': {
+      'a': ['A'],
+      'b': ['B']
+    }
+  }
+  initialState = 'A'
+  F = {'A'}
+  
+  nfa = NFA(Q, sigma, delta, initialState, F)
+  
+  Q1 = {'C', 'D'}
+  sigma1 = {'a', 'b'}
+  delta1 = {
+    'C': {
+      'a' : ['C'],
+      'b' : ['D']
+    },
+    'D': {
+      'a' : ['D'],
+      'b' : ['C']
+    }
+  }
+  initialState1 = 'C'
+  F1 = {'C'}
+  
+  nfa1 = NFA(Q1, sigma1, delta1, initialState1, F1)
+  
+  nfa2 = nfa.product(nfa1)
+  
+  nfa2.view("nfa")
+  
+  assert nfa2.isValid() == True
+  assert nfa2.accept('') == True
+  assert nfa2.accept('bb') == True
+  assert nfa2.accept('b') == False
+  assert nfa2.accept('bbaa') == True
+  assert nfa2.accept('bbaaa') == False

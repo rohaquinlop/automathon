@@ -156,7 +156,8 @@ class DFA:
   def getNFA(self):
     from automathon.finiteAutomata.nfa import NFA
     """Convert the actual DFA to NFA class and return it's conversion"""
-    ##TODO: Create tests, add to documentation
+    ##TODO: Create tests
+    ##TODO: Add to documentation
     Q = self.Q.copy()
     delta = dict()
     initialState = self.initialState
@@ -168,7 +169,7 @@ class DFA:
       tmp = dict()
       for s, q in transition.items():
         ## s : sigma
-        tmp[s] = list(q)
+        tmp[s] = [''.join(q)]
       
       delta[state] = tmp
     
