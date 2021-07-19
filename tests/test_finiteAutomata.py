@@ -352,11 +352,39 @@ def test_nfa_product():
   
   nfa2 = nfa.product(nfa1)
   
-  nfa2.view("nfa")
-  
   assert nfa2.isValid() == True
   assert nfa2.accept('') == True
   assert nfa2.accept('bb') == True
   assert nfa2.accept('b') == False
   assert nfa2.accept('bbaa') == True
   assert nfa2.accept('bbaaa') == False
+
+def test_dfa_nfa():
+  Q = {'s1', 's2', 's3'}
+  sigma = {'a', 'b'}
+  delta = {
+    's1': {
+      'a' : 's2',
+      'b' : 's1'
+    },
+    's2': {
+      'a' : 's2',
+      'b' : 's3'
+    },
+    's3': {
+      'a' : 's2',
+      'b' : 's1'
+    }
+  }
+  initialState = 's1'
+  F = {'s3'}
+  
+  dfa = DFA(Q, sigma, delta, initialState, F)
+  nfa = dfa.getNFA()
+  
+  assert dfa.isValid() == True
+  assert nfa.isValid() == True
+  assert dfa.accept('') == nfa.accept('')
+  assert dfa.accept('aaab') == nfa.accept('aaab')
+  assert dfa.accept('aaaba') == nfa.accept('aaaba')
+  assert dfa.accept('aaabb') == nfa.accept('aaabb')
