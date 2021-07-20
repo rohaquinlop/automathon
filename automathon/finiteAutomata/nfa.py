@@ -338,7 +338,6 @@ class NFA:
   
   def union(self, M: 'NFA') -> 'NFA':
     """Given a NFA M returns the union automaton"""
-    ##TODO: Add to documentation
     sigma = self.sigma.union(M.sigma)
     Q = set()
     F = set()
@@ -394,7 +393,6 @@ class NFA:
   def product(self, M: 'NFA') -> 'NFA':
     """Given a DFA M returns the product automaton"""
     ##Using DFA conversion
-    ##TODO: Add to documentation
     a = self.getDFA()
     b = M.getDFA()
     
