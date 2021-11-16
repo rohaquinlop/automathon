@@ -110,6 +110,37 @@ def test_nfa_dfa1():
 
   assert tmp.isValid() == True
 
+def test_nfa_dfa2():
+  Q = {'q0', 'q1', 'q2', 'q3'}
+  sigma = {'a', 'b'}
+  delta = {
+    'q0': {
+      'a': ['q0', 'q1'],
+      'b': ['q0']
+    },
+    'q1': {
+      'a': ['q2'],
+    },
+    'q2': {
+      'a': ['q3'],
+    },
+    'q3': {
+      'a': ['q3'],
+      'b': ['q3'],
+    },
+  }
+  initialState = 'q0'
+  F = {'q3'}
+  
+  fa = NFA(Q, sigma, delta, initialState, F)
+  
+  tmp = fa.getDFA()
+  
+  tmp.view('dfa')
+  fa.view('nfa')
+  
+  assert tmp.isValid() == True
+
 def test_nfa_removeEpsilon():
   Q = {'q1', 'q2', 'q3', 'q4'}
   sigma = {'0', '1'}
