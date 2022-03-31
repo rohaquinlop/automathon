@@ -62,6 +62,79 @@ def test_nfa_isValid():
   assert fa.accept("0000011") == True  ## Make Epsilon Transition
   assert fa.accept("000001") == False  ## Don't make Epsilon Transition
 
+def test_remove_epsilon_transitions():
+  Q = {'3', '1', '2', '4', '0'}
+  sigma = {'', 'AA', 'BB', 'DD', 'CC'}
+  delta = {
+    '0' : {
+           'AA' : ['1']
+          },
+    '1' : {
+           'BB' : ['2']
+          },
+    '2' : {
+           'CC' : ['3']
+          },
+    '3' : {
+           '' : ['1'],
+           'DD' : ['4']
+          }
+  }
+  initialState = '0'
+  F = {'4'}
+  
+  automata = NFA(Q, sigma, delta, initialState, F)
+  automata2 = automata.removeEpsilonTransitions()
+  automata.view('NFA With Epsilon')
+  automata2.view('NFA without EpsilonTransitions')
+
+
+def test_remove_epsilon_transitions1():
+  Q = {'0', '1', '2'}
+  sigma = {'', 'a', 'b'}
+  delta = {
+    '0': {
+      'a': ['1']
+    },
+    '1': {
+      '': ['2']
+    },
+    '2': {
+      'b': ['2']
+    }
+  }
+  initialState = '0'
+  F = {'2'}
+  
+  automata = NFA(Q, sigma, delta, initialState, F)
+  automata2 = automata.removeEpsilonTransitions()
+  automata.view('NFA With Epsilon 01')
+  automata2.view('NFA without EpsilonTransitions 01')
+
+
+def test_remove_epsilon_transitions2():
+  Q = {'0', '1', '2'}
+  sigma = {'', 'a', 'b'}
+  delta = {
+    '0': {
+      'a': ['1']
+    },
+    '1': {
+      '': ['2']
+    },
+    '2': {
+      'b': ['2'],
+      '' : ['1']
+    }
+  }
+  initialState = '0'
+  F = {'2'}
+  
+  automata = NFA(Q, sigma, delta, initialState, F)
+  automata2 = automata.removeEpsilonTransitions()
+  automata.view('NFA With Epsilon 02')
+  automata2.view('NFA without EpsilonTransitions 02')
+
 def test_nfa_dfa():
   Q = {'q0', 'q1', 'q2'}
   sigma = {'a', 'b'}

@@ -173,104 +173,61 @@ class NFA:
     
     return NFA(Q, sigma, delta, initialState, F)
   
-  def getEClosure(self, q):
+  def getEClosure(self, q, visited=None):
+    """Returns a list of the epsilon closures from estate q"""
     ans = [q]
+    if visited is None:
+      visited = list(q)
     
     if q in self.delta:
       if '' in self.delta[q]:
         for st in self.delta[q]['']:
-          ans.extend([k for k in self.getEClosure(st) if k not in ans])
+          if st not in visited:
+            visited.append(st)
+            ans.extend([k for k in self.getEClosure(st, visited) if k not in ans])
     return ans
+  
+  def containsEpsilonTransitions(self) -> bool:
+    """Returns True if the NFA contains Epsilon transitions else returns False"""
+    for q in self.delta:
+      if '' in self.delta[q]:
+        return True
+    return False
   
   def removeEpsilonTransitions(self) -> 'NFA':
     """Returns a copy of the actual NFA that doesn't contain epsilon transitions"""
+    Qprime = self.Q.copy()
+    deltaPrime = self.delta.copy()
+    deltaInitState = self.initialState
+    deltaF = self.F.copy()
     
-    Qprime = []
-    deltaPrime = dict()
+    if self.containsEpsilonTransitions():
+      deltaPrime = dict()
+      for q in Qprime:
+        closureStates = self.getEClosure(q)
+        
+        for sigma in self.sigma:
+          toEpsiClosure = list()
+          newTransitions = list()
+          
+          ##Get the transitions from sigma in each epsilon closure
+          for closureState in closureStates:
+            if closureState in self.F:
+              deltaF.add(q)
+            if closureState in self.delta and sigma in self.delta[closureState]:
+              toEpsiClosure.extend(self.delta[closureState][sigma])
+          
+          ##Get the new transitions from the epsilon closure
+          for epsiClosure in toEpsiClosure:
+            newTransitions.extend( self.getEClosure(epsiClosure) )
+          
+          if q not in deltaPrime:
+            deltaPrime[q] = dict()
+          
+          if sigma != '':
+            deltaPrime[q][sigma] = newTransitions
     
-    eClosures = []
-    
-    isolatedNodes = []
-    
-    tmp = self.getEClosure(self.initialState)
-    qVisiteds = tmp
-    
-    if len(tmp) == 1:
-      isolatedNodes.extend(tmp.copy())
-    elif len(tmp) > 1:
-      eClosures.append(tmp.copy())
-    
-    for q in self.Q:
-      tmp = []
-      if q not in qVisiteds:
-        tmp = self.getEClosure(q)
-      qVisiteds.extend([k for k in tmp if k not in qVisiteds])
-      if len(tmp) == 1:
-        isolatedNodes.extend(tmp.copy())
-      elif len(tmp) > 1:
-        eClosures.append(tmp.copy())
-    
-    ## MarkClosures
-    nodeClosure = dict()
-    valueClosure = dict()
-    cnt = 0
-    
-    for c in isolatedNodes:
-      cnt += 1
-      nodeClosure[c] = cnt
-      valueClosure[cnt] = [c]
-      Qprime.append([c])
-    
-    for c in eClosures:
-      cnt += 1
-      for e in c:
-        if e in nodeClosure:
-          Qprime.remove([e])
-        nodeClosure[e] = cnt
-      valueClosure[cnt] = c
-      Qprime.append(c)
-    
-    auxDelta = dict()
-    for qs in Qprime:  ## Qprime = [ [], [], ...]
-      ##Iterate over the states
-      auxDelta[str(qs)] = dict()  ##Initialize the auxiliary delta
-      for transitionValue in self.sigma:
-        ## get the values
-        if transitionValue != '':
-          visited = []
-          auxDelta[str(qs)][transitionValue] = []
-          for q in qs:
-            if q in self.delta and transitionValue in self.delta[q]:
-              for s in self.delta[q][transitionValue]:
-                if nodeClosure[s] not in visited:
-                  visited.append(nodeClosure[s])
-                  auxDelta[str(qs)][transitionValue].append(nodeClosure[s])
-    
-    for qs in auxDelta:
-      deltaPrime[qs] = dict()
-      for transitionValue in auxDelta[qs]:
-        deltaPrime[qs][transitionValue] = []
-        for idValue in auxDelta[qs][transitionValue]:
-          deltaPrime[qs][transitionValue].append(str(valueClosure[idValue]))
-    
-    finalStates = set()
-    for qs in Qprime:
-      for q in qs:
-        if q in self.F:
-          finalStates.add(str(qs))
-          break
-    
-    initialState = []
-    for qs in valueClosure[nodeClosure[str(self.initialState)]]:
-      initialState.append(qs)
-    
-    aux = set()
-    for qs in Qprime:
-      aux.add(str(qs))
-    
-    Qprime = aux.copy()
-    
-    return NFA(Qprime, self.sigma, deltaPrime, str(initialState), finalStates)
+    return NFA(Qprime, self.sigma, deltaPrime, deltaInitState, deltaF)
   
   def getDFA(self) -> DFA:
     """Convert the actual NFA to DFA and return it's conversion"""

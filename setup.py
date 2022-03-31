@@ -10,7 +10,7 @@ setup(
     name="automathon",
     packages=find_packages(include=['automathon', 'automathon.finiteAutomata', 'automathon.errors']),
     include_package_data=True,
-    version='0.0.7',
+    version='0.0.8',
     description="A Python library for simulating and visualizing finite automata",
     long_description=longDescription,
     long_description_content_type="text/markdown",
@@ -22,7 +22,7 @@ setup(
     test_suite='tests',
     author_email='rohaquinlop301@gmail.com',
     url='https://github.com/rohaquinlop/automathon',
-    download_url="https://github.com/rohaquinlop/automathon/archive/refs/tags/v0.0.7.tar.gz",
+    download_url="https://github.com/rohaquinlop/automathon/archive/refs/tags/v0.0.8.tar.gz",
     keywords=["python", "automata", "automata", "automathon"],
     classifiers=[
         'Development Status :: 3 - Alpha',
@@ -32,4 +32,3 @@ setup(
         'Programming Language :: Python :: 3'
     ]
 )
-
