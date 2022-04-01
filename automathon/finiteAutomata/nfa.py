@@ -230,18 +230,10 @@ class NFA:
     return NFA(Qprime, self.sigma, deltaPrime, deltaInitState, deltaF)
   
   def getDFA(self) -> DFA:
-    """Convert the actual NFA to DFA and return it's conversion"""
+    """Convert the actual NFA to DFA and return its conversion"""
     
     localNFA = NFA(self.Q, self.sigma, self.delta, self.initialState, self.F)
-    flag = False
-    
-    ##verify if have epsilon transitions
-    for q in self.Q:
-      if q in self.delta and not flag:
-        for transitionValue in self.delta[q]:
-          if transitionValue == '' and not flag:
-            localNFA = self.removeEpsilonTransitions()
-            flag = True
+    localNFA = localNFA.removeEpsilonTransitions()
     
     Qprime = []
     deltaPrime = dict()
@@ -259,11 +251,12 @@ class NFA:
         if q in localNFA.delta:
           for s in localNFA.delta[q]:
             tmp = localNFA.delta[q][s].copy()
-            if s in T:
-              ## avoid add repeated values
-              T[s].extend([k for k in tmp if k not in T[s]])
-            else:
-              T[s] = tmp
+            if tmp:
+              if s in T:
+                ## avoid add repeated values
+                T[s].extend([k for k in tmp if k not in T[s]])
+              else:
+                T[s] = tmp
       
       for t in T:
         T[t].sort()
@@ -292,6 +285,11 @@ class NFA:
     Qprime = aux
     
     return DFA(Qprime, localNFA.sigma, deltaPrime, str([localNFA.initialState]), Fprime)
+  
+  def minimize(self):
+    """Minimize the automata and return the result of the minimization"""
+    localDFA = self.getDFA()
+    return localDFA.getNFA()
   
   def union(self, M: 'NFA') -> 'NFA':
     """Given a NFA M returns the union automaton"""
