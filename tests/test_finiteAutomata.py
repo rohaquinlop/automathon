@@ -522,3 +522,34 @@ def test_nfa_minimization():
   automata3.view('minimize - DFA from NFA')
   automata4.view('minimize - NFA from DFA')
   automata5.view('minimize - result of minimization')
+
+def test_renumber():
+  Q = {'3', '1', '2', '0'}
+  sigma = {'', 'A', 'B', 'C'}
+  delta = {
+    '0': {
+      'A': ['1']
+    },
+    '1': {
+      'B': ['2'],
+      '': ['2']
+    },
+    '2': {
+      'C': ['3']
+    }
+  }
+  initialState = '0'
+  F = {'3'}
+  
+  automata = NFA(Q, sigma, delta, initialState, F)
+  automata2 = automata.removeEpsilonTransitions()
+  
+  automata3 = automata.getDFA()
+  automata4 = automata3.getNFA()
+  automata4.renumber()
+  
+  automata4.view('renumber - NFA from DFA')
+  assert automata4.isValid() == True
+  assert automata2.isValid() == True
+  assert automata3.isValid() == True
+  

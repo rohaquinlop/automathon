@@ -287,9 +287,48 @@ class NFA:
     return DFA(Qprime, localNFA.sigma, deltaPrime, str([localNFA.initialState]), Fprime)
   
   def minimize(self):
-    """Minimize the automata and return the result of the minimization"""
+    """Minimize the automata and return the NFA result of the minimization"""
     localDFA = self.getDFA()
-    return localDFA.getNFA()
+    localNFA = localDFA.getNFA()
+    localNFA.renumber()
+    return localNFA
+  
+  def renumber(self):
+    """Change the name of the states, renumbering each of the labels"""
+    idx = 0
+    newTags = dict()
+    
+    #New values
+    initialState = None
+    Q = set()
+    delta = dict()
+    F = set()
+    
+    #Setting the new label for each state
+    tmpQ = list(self.Q)
+    tmpQ.sort()
+    
+    for q in tmpQ:
+      newTags[q] = str(idx)
+      Q.add(str(idx))
+      idx += 1
+    
+    initialState = newTags[self.initialState]
+    
+    #Changing the labels for the final states
+    for f in self.F:
+      F.add(newTags[f])
+    
+    for q in self.delta:
+      delta[newTags[q]] = dict()
+      for s in self.delta[q]:
+        nxtStates = list()
+        for nxtState in self.delta[q][s]:
+          nxtStates.append(newTags[nxtState])
+        
+        delta[newTags[q]][s] = nxtStates
+    
+    self.Q, self.F, self.delta, self.initialState = Q, F, delta, initialState
   
   def union(self, M: 'NFA') -> 'NFA':
     """Given a NFA M returns the union automaton"""
