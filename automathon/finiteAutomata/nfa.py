@@ -27,16 +27,16 @@ class NFA:
     Ex:
       delta = {
                 'q0' : {
-                        '0' : ['q0', 'q2'],
-                        '1' : ['q1', 'q2', 'q3']
+                        '0' : {'q0', 'q2'},
+                        '1' : {'q1', 'q2', 'q3'}
                        },
                 'q1' : {
-                        '0' : ['q2'],
-                        '1' : ['q0', 'q1']
+                        '0' : {'q2'},
+                        '1' : {'q0', 'q1'}
                        },
                 'q2' : {
-                        '0' : ['q1', 'q2'],
-                        '' : ['q2']
+                        '0' : {'q1', 'q2'},
+                        '' : {'q2'}
                        },
               }
   
@@ -225,7 +225,7 @@ class NFA:
             deltaPrime[q] = dict()
           
           if sigma != '':
-            deltaPrime[q][sigma] = newTransitions
+            deltaPrime[q][sigma] = set(newTransitions)
     
     return NFA(Qprime, self.sigma, deltaPrime, deltaInitState, deltaF)
   
@@ -256,7 +256,7 @@ class NFA:
                 ## avoid add repeated values
                 T[s].extend([k for k in tmp if k not in T[s]])
               else:
-                T[s] = tmp
+                T[s] = list(tmp)
       
       for t in T:
         T[t].sort()
@@ -326,7 +326,7 @@ class NFA:
         for nxtState in self.delta[q][s]:
           nxtStates.append(newTags[nxtState])
         
-        delta[newTags[q]][s] = nxtStates
+        delta[newTags[q]][s] = set(nxtStates)
     
     self.Q, self.F, self.delta, self.initialState = Q, F, delta, initialState
   
@@ -365,7 +365,7 @@ class NFA:
         for state in states:
           tmpStates.append(realValueSelf[state])
         
-        tmpDict[s] = tmpStates.copy()
+        tmpDict[s] = set(tmpStates.copy())
       selfDelta[realValueSelf[q]] = tmpDict.copy()
     
     for q, transition in M.delta.items():
@@ -376,11 +376,11 @@ class NFA:
         for state in states:
           tmpStates.append(realValueM[state])
         
-        tmpDict[s] = tmpStates.copy()
+        tmpDict[s] = set(tmpStates.copy())
       mDelta[realValueM[q]] = tmpDict.copy()
     
     delta = {**selfDelta, **mDelta, initialState: {
-      '': [realValueSelf[self.initialState], realValueM[M.initialState]]}}
+      '': {realValueSelf[self.initialState], realValueM[M.initialState]}}}
 
     return NFA(Q, sigma, delta, initialState, F)
   
