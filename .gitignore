@@ -9,3 +9,4 @@ tests/__pycache__/
 automathon/errors/__pycache__/
 build/
 .idea/
+bazel-*

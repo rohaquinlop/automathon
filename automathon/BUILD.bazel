@@ -1,0 +1,10 @@
+py_library(
+  name="automathon",
+  srcs=[
+    "__init__.py",
+  ],
+  deps=[
+    "//automathon/finiteAutomata:finiteAutomata",
+  ],
+  visibility=["//visibility:public"],
+)

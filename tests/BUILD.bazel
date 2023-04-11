@@ -1,0 +1,15 @@
+py_test(
+  name="test_dfa",
+  srcs=["test_dfa.py"],
+  deps=[
+    "//automathon:automathon",
+  ]
+)
+
+py_test(
+  name="test_nfa",
+  srcs=["test_nfa.py"],
+  deps=[
+    "//automathon:automathon",
+  ]
+)
