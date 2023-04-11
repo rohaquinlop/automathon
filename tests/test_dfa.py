@@ -11,6 +11,48 @@ class TestDFA(unittest.TestCase):
     F={'q0'}
   )
 
+  dfa = DFA(
+    Q={'A', 'B'},
+    sigma={'0', '1'},
+    delta={
+      'A' : {
+        '0' : 'A',
+        '1' : 'B'
+      },
+      'B' : {
+        '0' : 'B',
+        '1' : 'A'
+      }
+    },
+    initialState='A',
+    F={'B'}
+  )
+
+  dfa_1 = DFA(
+  Q={'R', 'S', 'T', 'U'},
+  sigma={'0', '1'},
+  delta={
+    'R' : {
+      '0' : 'S',
+      '1' : 'R'
+    },
+    'S' : {
+      '0' : 'T',
+      '1' : 'R'
+    },
+    'T' : {
+      '0' : 'U',
+      '1' : 'R'
+    },
+    'U' : {
+      '0' : 'U',
+      '1' : 'U'
+    }
+  },
+  initialState='R',
+  F={'U'}
+  )
+
   def test_isValid(self):
     self.assertTrue(self.fa.isValid())
   
@@ -76,98 +118,14 @@ class TestDFA(unittest.TestCase):
     self.assertFalse(product_result.accept("b"))
   
   def test_product_1(self):
-    dfa = DFA(
-      Q={'A', 'B'},
-      sigma={'0', '1'},
-      delta={
-        'A' : {
-          '0' : 'A',
-          '1' : 'B'
-        },
-        'B' : {
-          '0' : 'B',
-          '1' : 'A'
-        }
-      },
-      initialState='A',
-      F={'B'}
-    )
-
-    dfa_1 = DFA(
-      Q={'R', 'S', 'T', 'U'},
-      sigma={'0', '1'},
-      delta={
-        'R' : {
-          '0' : 'S',
-          '1' : 'R'
-        },
-        'S' : {
-          '0' : 'T',
-          '1' : 'R'
-        },
-        'T' : {
-          '0' : 'U',
-          '1' : 'R'
-        },
-        'U' : {
-          '0' : 'U',
-          '1' : 'U'
-        }
-      },
-      initialState='R',
-      F={'U'}
-    )
-
-    product_result = dfa.product(dfa_1)
+    product_result = self.dfa.product(self.dfa_1)
 
     self.assertTrue(product_result.isValid())
     self.assertTrue(product_result.accept("0001"))
     self.assertFalse(product_result.accept("00010010"))
   
   def test_union(self):
-    dfa = DFA(
-      Q={'A', 'B'},
-      sigma={'0', '1'},
-      delta={
-        'A' : {
-          '0' : 'A',
-          '1' : 'B'
-        },
-        'B' : {
-          '0' : 'B',
-          '1' : 'A'
-        }
-      },
-      initialState='A',
-      F={'B'}
-    )
-
-    dfa_1 = DFA(
-    Q={'R', 'S', 'T', 'U'},
-    sigma={'0', '1'},
-    delta={
-      'R' : {
-        '0' : 'S',
-        '1' : 'R'
-      },
-      'S' : {
-        '0' : 'T',
-        '1' : 'R'
-      },
-      'T' : {
-        '0' : 'U',
-        '1' : 'R'
-      },
-      'U' : {
-        '0' : 'U',
-        '1' : 'U'
-      }
-    },
-    initialState='R',
-    F={'U'}
-    )
-
-    union_result = dfa.union(dfa_1)
+    union_result = self.dfa.union(self.dfa_1)
 
     self.assertTrue(union_result.isValid())
     self.assertTrue(union_result.accept("00010010"))
