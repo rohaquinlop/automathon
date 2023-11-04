@@ -54,7 +54,7 @@ automata1 = DFA(Q, sigma, delta, initialState, F)
 ### Verify if the automata is valid
 
 ```python
-automata1.isValid()   #True
+automata1.is_valid()  # True
 ```
 
 ### Verify if the automata accept a string
@@ -85,7 +85,7 @@ automata1.view("DFA Visualization")
 If you need to use a DFA and operate with a NFA you can convert your DFA to NFA class, using the function **getNFA**. **getNFA** convert your DFA to NFA class and returns its conversion.
 
 ```python
-automata1NFA =  automata1.getNFA()
+automata1NFA = automata1.get_nfa()
 automata1NFA.view("DFA to NFA")
 ```
 
@@ -96,15 +96,15 @@ The **product** function receives a DFA and  returns the product of two DFAs, yo
 Q = {'A', 'B'}
 sigma = {'0', '1'}
 delta = {
-          'A' : {
-                  '0' : 'A',
-                  '1' : 'B'
-                 },
-          'B' : {
-                  '0' : 'B',
-                  '1' : 'A'
-                 }
-        }
+  'A': {
+    '0': 'A',
+    '1': 'B'
+  },
+  'B': {
+    '0': 'B',
+    '1': 'A'
+  }
+}
 initialState = 'A'
 F = {'B'}
 dfa = DFA(Q, sigma, delta, initialState, F)
@@ -112,23 +112,23 @@ dfa = DFA(Q, sigma, delta, initialState, F)
 Q1 = {'R', 'S', 'T', 'U'}
 sigma1 = {'0', '1'}
 delta1 = {
-          'R' : {
-                  '0' : 'S',
-                  '1' : 'R'
-                },
-          'S' : {
-                  '0' : 'T',
-                  '1' : 'R'
-                },
-          'T' : {
-                  '0' : 'U',
-                  '1' : 'R'
-                },
-          'U' : {
-                  '0' : 'U',
-                  '1' : 'U'
-                }
-        }
+  'R': {
+    '0': 'S',
+    '1': 'R'
+  },
+  'S': {
+    '0': 'T',
+    '1': 'R'
+  },
+  'T': {
+    '0': 'U',
+    '1': 'R'
+  },
+  'U': {
+    '0': 'U',
+    '1': 'U'
+  }
+}
 initialState1 = 'R'
 F1 = {'U'}
 
@@ -136,7 +136,7 @@ dfa1 = DFA(Q1, sigma1, delta1, initialState1, F1)
 
 dfa2 = dfa.product(dfa1)
 
-assert dfa2.isValid() == True
+assert dfa2.is_valid() == True
 assert dfa2.accept("0001") == True
 assert dfa2.accept("00010010") == False
 ```
@@ -148,15 +148,15 @@ The **union** function receives a DFA and returns the union of two DFAs, your ac
 Q = {'A', 'B'}
 sigma = {'0', '1'}
 delta = {
-          'A' : {
-                  '0' : 'A',
-                  '1' : 'B'
-                 },
-          'B' : {
-                  '0' : 'B',
-                  '1' : 'A'
-                 }
-        }
+  'A': {
+    '0': 'A',
+    '1': 'B'
+  },
+  'B': {
+    '0': 'B',
+    '1': 'A'
+  }
+}
 initialState = 'A'
 F = {'B'}
 dfa = DFA(Q, sigma, delta, initialState, F)
@@ -164,23 +164,23 @@ dfa = DFA(Q, sigma, delta, initialState, F)
 Q1 = {'R', 'S', 'T', 'U'}
 sigma1 = {'0', '1'}
 delta1 = {
-          'R' : {
-                  '0' : 'S',
-                  '1' : 'R'
-                },
-          'S' : {
-                  '0' : 'T',
-                  '1' : 'R'
-                },
-          'T' : {
-                  '0' : 'U',
-                  '1' : 'R'
-                },
-          'U' : {
-                  '0' : 'U',
-                  '1' : 'U'
-                }
-        }
+  'R': {
+    '0': 'S',
+    '1': 'R'
+  },
+  'S': {
+    '0': 'T',
+    '1': 'R'
+  },
+  'T': {
+    '0': 'U',
+    '1': 'R'
+  },
+  'U': {
+    '0': 'U',
+    '1': 'U'
+  }
+}
 initialState1 = 'R'
 F1 = {'U'}
 
@@ -190,7 +190,7 @@ dfa2 = dfa.union(dfa1)
 
 assert dfa2.accept("00010010") == True
 assert dfa2.accept("0011000") == True
-assert dfa.isValid() == True
+assert dfa.is_valid() == True
 ```
 
 ## Non-Deterministic Finite Automata
@@ -233,7 +233,7 @@ automata2 = NFA(Q, sigma, delta, initialState, F)
 ### Verify if the automata is valid
 
 ```python
-automata2.isValid()   #True
+automata2.is_valid()  # True
 ```
 
 ### Verify if the automata accept a string
@@ -260,14 +260,14 @@ automata2.view("NFA Visualization")
 ### Remove Epsilon transitions from NFA
 
 ```python
-automata3 = automata2.removeEpsilonTransitions()
+automata3 = automata2.remove_epsilon_transitions()
 automata3.view("NFA without EpsilonTransitions")
 ```
 
 ### Convert NFA to DFA
 
 ```python
-automata4 = automata3.getDFA()
+automata4 = automata3.get_dfa()
 automata4.view("NFA to DFA")
 ```
 
@@ -278,9 +278,9 @@ The **product** function receives a NFA and returns the product of two NFAs, you
 Q = {'A', 'B'}
 sigma = {'a', 'b'}
 delta = {
-  'A' : {
-    'a' : {'B'},
-    'b' : {'A'}
+  'A': {
+    'a': {'B'},
+    'b': {'A'}
   },
   'B': {
     'a': {'A'},
@@ -296,12 +296,12 @@ Q1 = {'C', 'D'}
 sigma1 = {'a', 'b'}
 delta1 = {
   'C': {
-    'a' : {'C'},
-    'b' : {'D'}
+    'a': {'C'},
+    'b': {'D'}
   },
   'D': {
-    'a' : {'D'},
-    'b' : {'C'}
+    'a': {'D'},
+    'b': {'C'}
   }
 }
 initialState1 = 'C'
@@ -311,7 +311,7 @@ nfa1 = NFA(Q1, sigma1, delta1, initialState1, F1)
 
 nfa2 = nfa.product(nfa1)
 
-assert nfa2.isValid() == True
+assert nfa2.is_valid() == True
 assert nfa2.accept('') == True
 assert nfa2.accept('bb') == True
 assert nfa2.accept('b') == False
@@ -326,8 +326,8 @@ The **union** function receives a NFA and returns the union of two NFAs, your ac
 Q = {'A'}
 sigma = {'a'}
 delta = {
-  'A' : {
-    'a' : {'A'}
+  'A': {
+    'a': {'A'}
   }
 }
 initialState = 'A'
@@ -337,12 +337,12 @@ nfa = NFA(Q, sigma, delta, initialState, F)
 Q1 = {'C', 'D', 'E'}
 sigma1 = {'a', 'b'}
 delta1 = {
-  'C' : {
-    'b' : {'D'},
+  'C': {
+    'b': {'D'},
   },
   'D': {
-    'a' : {'E'},
-    'b' : {'D'}
+    'a': {'E'},
+    'b': {'D'}
   }
 }
 
@@ -353,7 +353,7 @@ nfa1 = NFA(Q1, sigma1, delta1, initialState1, F1)
 
 nfa2 = nfa.union(nfa1)
 
-assert nfa2.isValid() == True
+assert nfa2.is_valid() == True
 assert nfa2.accept("aaaaaa") == True
 assert nfa2.accept("aaaabbbbaaa") == False
 assert nfa2.accept("bbbbbbbbba") == True

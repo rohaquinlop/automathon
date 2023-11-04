@@ -1,9 +1,10 @@
 class Error(Exception):
-  """Base class for exceptions in this module."""
-  pass
+    """Base class for exceptions in this module."""
+    pass
+
 
 class InputError(Error):
-  """Exception raised for errors in the input.
+    """Exception raised for errors in the input.
 
   Attributes
   - - - - - - - - - - - - - - - - - -
@@ -15,13 +16,13 @@ class InputError(Error):
       Explaination of the error.
   """
 
-  def __init__(self, expression, message):
-    self.expression = expression
-    self.message = message
+    def __init__(self, expression, message):
+        self.expression = expression
+        self.message = message
 
 
 class SigmaError(Error):
-  """Exception raised for errors in the transition.
+    """Exception raised for errors in the transition.
 
   Attributes
   - - - - - - - - - - - - - - - - - -
@@ -30,10 +31,9 @@ class SigmaError(Error):
       Input expression in which the error ocurred.
 
     message : str
-      Explaination of the error.
+      Explanation of the error.
   """
 
-  def __init__(self, expression, message):
-    self.expression = expression
-    self.message = message
-
+    def __init__(self, expression, message):
+        self.expression = expression
+        self.message = message

@@ -1,10 +1,11 @@
 from setuptools import find_packages, setup
 
-#read the contents of the README file
+# read the contents of the README file
 from os import path
+
 thisDirectory = path.abspath(path.dirname(__file__))
 with open(path.join(thisDirectory, 'README.md'), encoding='utf-8') as f:
-  longDescription = f.read()
+    longDescription = f.read()
 
 setup(
     name="automathon",
