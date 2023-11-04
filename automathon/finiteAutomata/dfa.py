@@ -108,7 +108,7 @@ class DFA:
             elif state in self.delta:
                 # Search through states
                 for transition in self.delta[state].items():
-                    # transition = ('1', 'q0')
+                    # transition: ('1', 'q0')
                     if S[idx] == transition[0]:
                         q.append([idx + 1, transition[1]])
 
@@ -213,10 +213,10 @@ class DFA:
 
     def union(self, M: 'DFA') -> 'DFA':
         """Given a DFA M returns the union automaton"""
-        tmpNFA = self.get_nfa()
-        tmpNFA = tmpNFA.union(M.get_nfa()).remove_epsilon_transitions()
+        tmp_nfa = self.get_nfa()
+        tmp_nfa = tmp_nfa.union(M.get_nfa()).remove_epsilon_transitions()
 
-        return tmpNFA.get_dfa()
+        return tmp_nfa.get_dfa()
 
     def view(self, fileName: str):
         dot = Digraph(name=fileName, format='png')

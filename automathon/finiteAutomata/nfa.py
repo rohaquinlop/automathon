@@ -138,31 +138,37 @@ class NFA:
 
     def is_valid(self) -> bool:
         """ Returns True if the NFA is a valid automata """
+        ans = True
+        not_declared_state = None
 
         # Validate if the initial state is in the set Q
         if self.initialState not in self.Q:
-            raise SigmaError(self.initialState, 'Is not declared in Q')
+            not_declared_state = self.initialState
 
         # Validate if the delta transitions are in the set Q
         for d in self.delta:
+            if not_declared_state is not None:
+                break
+
             if d != "" and d not in self.Q:
-                raise SigmaError(d, 'Is not declared in Q')
+                not_declared_state = d
 
             # Validate if the d transitions are valid
             for s in self.delta[d]:
                 if s != "" and s not in self.sigma:
-                    raise SigmaError(s, 'Is not declared in sigma')
+                    not_declared_state = s
                 for q in self.delta[d][s]:
                     if q not in self.Q:
-                        raise SigmaError(self.delta[d][s], 'Is not declared Q')
+                        not_declared_state = self.delta[d][s]
 
         # Validate if the final state are in Q
         for f in self.F:
             if f not in self.Q:
-                raise SigmaError(f, 'Is not declared in Q')
+                not_declared_state = f
 
-        # None of the above cases failed then this NFA is valid
-        return True
+        if not_declared_state is not None:
+            raise SigmaError(not_declared_state, 'Is not declared in Q')
+        return ans
 
     def complement(self) -> 'NFA':
         """Returns the complement of the NFA."""
@@ -205,14 +211,14 @@ class NFA:
         if self.contains_epsilon_transitions():
             deltaPrime = dict()
             for q in Qprime:
-                closureStates = self.get_e_closure(q)
+                closure_states = self.get_e_closure(q)
 
                 for sigma in self.sigma:
                     toEpsiClosure = list()
                     newTransitions = list()
 
                     # Get the transitions from sigma in each epsilon closure
-                    for closureState in closureStates:
+                    for closureState in closure_states:
                         if closureState in self.F:
                             deltaF.add(q)
                         if closureState in self.delta and sigma in self.delta[closureState]:
@@ -233,15 +239,15 @@ class NFA:
     def get_dfa(self) -> DFA:
         """Convert the actual NFA to DFA and return its conversion"""
 
-        localNFA = NFA(self.Q, self.sigma, self.delta, self.initialState, self.F)
-        localNFA = localNFA.remove_epsilon_transitions()
+        local_nfa = NFA(self.Q, self.sigma, self.delta, self.initialState, self.F)
+        local_nfa = local_nfa.remove_epsilon_transitions()
 
         Qprime = []
         deltaPrime = dict()
 
         queue = deque()
-        visited = [[localNFA.initialState]]
-        queue.append([localNFA.initialState])
+        visited = [[local_nfa.initialState]]
+        queue.append([local_nfa.initialState])
 
         while queue:
             qs = queue.pop()  # state Q
@@ -249,9 +255,9 @@ class NFA:
             T = dict()  # {str : list}
 
             for q in qs:
-                if q in localNFA.delta:
-                    for s in localNFA.delta[q]:
-                        tmp = localNFA.delta[q][s].copy()
+                if q in local_nfa.delta:
+                    for s in local_nfa.delta[q]:
+                        tmp = local_nfa.delta[q][s].copy()
                         if tmp:
                             if s in T:
                                 # avoid add repeated values
@@ -274,7 +280,7 @@ class NFA:
 
         for qs in Qprime:
             for q in qs:
-                if q in localNFA.F:
+                if q in local_nfa.F:
                     Fprime.add(str(qs))
                     break
 
@@ -285,7 +291,7 @@ class NFA:
 
         Qprime = aux
 
-        return DFA(Qprime, localNFA.sigma, deltaPrime, str([localNFA.initialState]), Fprime)
+        return DFA(Qprime, local_nfa.sigma, deltaPrime, str([local_nfa.initialState]), Fprime)
 
     def minimize(self):
         """Minimize the automata and return the NFA result of the minimization"""
@@ -313,7 +319,7 @@ class NFA:
             Q.add(str(idx))
             idx += 1
 
-        initialState = newTags[self.initialState]
+        initial_state = newTags[self.initialState]
 
         # Changing the labels for the final states
         for f in self.F:
@@ -328,7 +334,7 @@ class NFA:
 
                 delta[newTags[q]][s] = set(nxtStates)
 
-        self.Q, self.F, self.delta, self.initialState = Q, F, delta, initialState
+        self.Q, self.F, self.delta, self.initialState = Q, F, delta, initial_state
 
     def union(self, M: 'NFA') -> 'NFA':
         """Given a NFA M returns the union automaton"""
