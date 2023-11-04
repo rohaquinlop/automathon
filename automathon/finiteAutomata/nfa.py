@@ -218,11 +218,11 @@ class NFA:
                     newTransitions = list()
 
                     # Get the transitions from sigma in each epsilon closure
-                    for closureState in closure_states:
-                        if closureState in self.F:
+                    for closure_state in closure_states:
+                        if closure_state in self.F:
                             deltaF.add(q)
-                        if closureState in self.delta and sigma in self.delta[closureState]:
-                            toEpsiClosure.extend(self.delta[closureState][sigma])
+                        if closure_state in self.delta and sigma in self.delta[closure_state]:
+                            toEpsiClosure.extend(self.delta[closure_state][sigma])
 
                     # Get the new transitions from the epsilon closure
                     for epsiClosure in toEpsiClosure:
@@ -295,15 +295,15 @@ class NFA:
 
     def minimize(self):
         """Minimize the automata and return the NFA result of the minimization"""
-        localDFA = self.get_dfa()
-        localNFA = localDFA.get_nfa()
-        localNFA.renumber()
-        return localNFA
+        local_dfa = self.get_dfa()
+        local_nfa = local_dfa.get_nfa()
+        local_nfa.renumber()
+        return local_nfa
 
     def renumber(self):
         """Change the name of the states, renumbering each of the labels"""
         idx = 0
-        newTags = dict()
+        new_tags = dict()
 
         # New values
         Q = set()
@@ -315,24 +315,24 @@ class NFA:
         tmpQ.sort()
 
         for q in tmpQ:
-            newTags[q] = str(idx)
+            new_tags[q] = str(idx)
             Q.add(str(idx))
             idx += 1
 
-        initial_state = newTags[self.initialState]
+        initial_state = new_tags[self.initialState]
 
         # Changing the labels for the final states
         for f in self.F:
-            F.add(newTags[f])
+            F.add(new_tags[f])
 
         for q in self.delta:
-            delta[newTags[q]] = dict()
+            delta[new_tags[q]] = dict()
             for s in self.delta[q]:
                 nxtStates = list()
                 for nxtState in self.delta[q][s]:
-                    nxtStates.append(newTags[nxtState])
+                    nxtStates.append(new_tags[nxtState])
 
-                delta[newTags[q]][s] = set(nxtStates)
+                delta[new_tags[q]][s] = set(nxtStates)
 
         self.Q, self.F, self.delta, self.initialState = Q, F, delta, initial_state
 
