@@ -2,7 +2,7 @@
 
 Created by: Robin Hafid Quintero Lopez
 
-[![Build Status](https://travis-ci.com/rohaquinlop/automathon.svg?branch=main)](https://travis-ci.com/rohaquinlop/automathon)
+[![Main Workflow](https://github.com/rohaquinlop/automathon/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/rohaquinlop/automathon)
 
 A Python library for simulating and visualizing finite automata.
 
@@ -75,9 +75,17 @@ notautomata1.accept("00100")    #True
 
 For both, DFA and NFA, the view method enables to visualize the automaton, receives as parameter a String as the file name for the png and svg files.
 
+More information about the graphviz attributes [here](https://www.graphviz.org/doc/info/attrs.html).
+
 ![DFA Visualization](https://lh3.googleusercontent.com/fife/ABSRlIoeWTAicQSJA8qaVaVfz1oRENPSyp4O_qo29zptk9BumRx-t1FYVaRtVeM2lgoY7CpRbgzUUnWb62qi63TZUkB6Okht7qNG1iK_DpIcVxz7sgLM9Ysyue3WSnwvG55Oxe6BG--_dqplScQkbSq9TscYq5ThFjrTl6yBTBQEz2ZK1Y4CMfrIeBmnXswlwyshKrVRqmjv-TZSnc1lp_Age-kZlcizL3Kf2E9rD02NgQYwWqd6JbWXXDCv1DPWTZ8J1VkZpoC0XwN1eEdYC2PrgoSU-KqWrr-Ih5e3JMxojdgSgiocRMQx3lyitnD51dw3AcDrdYVSQUqxCEID3MZ3wj6wTb-uSK3-r6yHJsq_ObXQOfdQP69myEDzg7lXHEANUN_1TGYa58W3rI9PXC-DL9k5Vt_KbUoJrMhF76dASOodl_bzKn4hBhTmGty9Culu9wyaNFNMauGSSv5VnBP8OHI_Mslg9SgkX5aZ1yZhVAgzvyrPTEfLIXyLwGY0nAfmxmQUzfeeV3xLwV5Y6Xf7tTfRL0YNNUo7it2IQrpDQxsXx77i-xNVdRSUKceS10nMQZ4UZav-3R91_J3zChbgxvQOOPyR_jGmiVzDu6djLyQw9ZFhG9J45nEuHdtVmyDbh6MzWO8rOUBPjPaDbUYOdY-dzi6dTYV5UPgl57etP_Dkph3eIv5OuipqdeJfLqRJCKxoJ1RsXMe2MqlLdOcSgjtYleuXrbT_VDc=w1514-h772-ft)
 ```Python
 automata1.view("DFA Visualization")
+
+# Add custom styling
+
+automata1.view(file_name="DFA Custom Styling",
+               node_attr={'fontsize': '20'},
+               edge_attr={'fontsize': '20pt'})
 ```
 
 ### Convert DFA to NFA
@@ -255,6 +263,12 @@ notautomata2.accept("000001")    #True
 ![NFA Visualization](https://lh3.googleusercontent.com/fife/ABSRlIoyNVLUsLV1nkvolj1PMNdI0dGOU2jAMDsiNxq-V7h26Qgor71kn5hYGEcqoV54Iebftdgt5pBb7wP49f0SDBfGr0oegUOZG9u9Ud34JON17RqMVVVkb9Di2UDYqUbRLbuqCXskIBWnj4hfX4fV3XHqORgnn_Qsci9USWvMRkvNEsU1qLkXfMUJCLFc07ABWs-EdJIPU6FGW_gG87NHdr8sPwotZ3DEms1uz4DEizDk278Dr57s8SzOys_1Kz3h7gTR1_CliYGl4ZD1y69dFf_2e2OTydmn2P4y4o8DULKQixDGkZLws-ATi1bQzSjEZxMWlW-PLkHdfF1KTc7I-QVhczQiuVs5KLoE5bK0u7YjtZFR3XyjpGS2_Q8yB3j6ggqUqt1uGNHUntOTPqye0krtyWt10YjbtXTeSjWW4i18mXY1SA-iZu9KTH5IdEttbWoYyfAQdJA4trz5ZyEhUjwwo-peaO8wIc_8xlRY0orrvduOtx_AnqtjOK_QwCdFpVjBzEygxR_z4RRDreOLlLITeOSwROwbbtGe9oYT2skyX0H_j8-pGaMabUnJ4eyDviPTa5bEZk0B5LoKa-hdDBkjTYX-zDCHg1xGsXHWLyMQtvvuBP1ptCJhODgWrmdCyfsw3UbOmfpusUW_US1E3OXsKwtAsH17bXTyyQGEeHjgiBAwH9-Tdf-l1bcRNzR9SEhYdUFtFAvYlFf4pBKbkgTe-DgIDQ_zIjA=w959-h772-ft)
 ```Python
 automata2.view("NFA Visualization")
+
+# Add custom styling
+
+automata2.view(file_name="NFA Custom Styling",
+               node_attr={'fontsize': '20'},
+               edge_attr={'fontsize': '20pt'})
 ```
 
 ### Remove Epsilon transitions from NFA
