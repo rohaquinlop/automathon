@@ -1,4 +1,6 @@
 # Exceptions module
+from __future__ import annotations
+
 from automathon.errors.errors import *
 from collections import deque
 from graphviz import Digraph
@@ -218,8 +220,8 @@ class DFA:
 
         return tmp_nfa.get_dfa()
 
-    def view(self, fileName: str):
-        dot = Digraph(name=fileName, format='png')
+    def view(self, file_name: str, node_attr: dict[str, str] | None = None, edge_attr: dict[str, str] | None = None):
+        dot = Digraph(name=file_name, format='png', node_attr=node_attr, edge_attr=edge_attr)
 
         dot.graph_attr['rankdir'] = 'LR'
 

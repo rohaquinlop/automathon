@@ -181,3 +181,7 @@ class TestNFA(unittest.TestCase):
         automata_4.renumber()
 
         self.assertTrue(automata_4.is_valid())
+
+
+if __name__ == '__main__':
+    unittest.main()
