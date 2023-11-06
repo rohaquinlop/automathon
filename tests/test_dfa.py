@@ -5,15 +5,15 @@ from automathon.errors.errors import InputError
 
 class TestDFA(unittest.TestCase):
     fa = DFA(
-        Q={'q0', 'q1', 'q2'},
+        q={'q0', 'q1', 'q2'},
         sigma={'0', '1'},
         delta={'q0': {'0': 'q0', '1': 'q1'}, 'q1': {'0': 'q2', '1': 'q0'}, 'q2': {'0': 'q1', '1': 'q2'}},
-        initialState='q0',
-        F={'q0'}
+        initial_state='q0',
+        f={'q0'}
     )
 
     dfa = DFA(
-        Q={'A', 'B'},
+        q={'A', 'B'},
         sigma={'0', '1'},
         delta={
             'A': {
@@ -25,12 +25,12 @@ class TestDFA(unittest.TestCase):
                 '1': 'A'
             }
         },
-        initialState='A',
-        F={'B'}
+        initial_state='A',
+        f={'B'}
     )
 
     dfa_1 = DFA(
-        Q={'R', 'S', 'T', 'U'},
+        q={'R', 'S', 'T', 'U'},
         sigma={'0', '1'},
         delta={
             'R': {
@@ -50,11 +50,11 @@ class TestDFA(unittest.TestCase):
                 '1': 'U'
             }
         },
-        initialState='R',
-        F={'U'}
+        initial_state='R',
+        f={'U'}
     )
 
-    def test_isValid(self):
+    def test_is_valid(self):
         self.assertTrue(self.fa.is_valid())
 
     def test_accept_empty(self):
@@ -78,7 +78,7 @@ class TestDFA(unittest.TestCase):
 
     def test_product(self):
         dfa = DFA(
-            Q={'A', 'B'},
+            q={'A', 'B'},
             sigma={'a', 'b'},
             delta={
                 'A': {
@@ -90,12 +90,12 @@ class TestDFA(unittest.TestCase):
                     'b': 'B'
                 }
             },
-            initialState='A',
-            F={'A'}
+            initial_state='A',
+            f={'A'}
         )
 
         dfa_1 = DFA(
-            Q={'C', 'D'},
+            q={'C', 'D'},
             sigma={'a', 'b'},
             delta={
                 'C': {
@@ -107,8 +107,8 @@ class TestDFA(unittest.TestCase):
                     'b': 'C'
                 }
             },
-            initialState='C',
-            F={'C'}
+            initial_state='C',
+            f={'C'}
         )
 
         product_result = dfa.product(dfa_1)
