@@ -349,8 +349,8 @@ class NFA:
             delta[new_tags[_q]] = dict()
             for s in self.delta[_q]:
                 nxt_states = list()
-                for nxtState in self.delta[_q][s]:
-                    nxt_states.append(new_tags[nxtState])
+                for nxt_state in self.delta[_q][s]:
+                    nxt_states.append(new_tags[nxt_state])
 
                 delta[new_tags[_q]][s] = set(nxt_states)
 

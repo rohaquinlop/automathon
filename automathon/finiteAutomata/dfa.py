@@ -92,57 +92,57 @@ class DFA:
 
         # Basic Idea: Search through states (delta) in the DFA, since the initial state to the final states
 
-        # BFS states
-
-        q = deque()  # queue -> states from i to last character in S | (index, state)
-        q.append([0, self.initial_state])  # Starts from 0
         ans = False  # Flag
-
-        while q and not ans:
-            front_q = q.popleft()
-            idx = front_q[0]
-            state = front_q[1]
-
-            if idx == len(string):
-                if state in self.f:
-                    ans = True
-            elif string[idx] not in self.sigma:
-                raise InputError(string[idx], 'Is not declared in sigma')
-            elif state in self.delta:
-                # Search through states
-                for transition in self.delta[state].items():
-                    # transition: ('1', 'q0')
-                    if string[idx] == transition[0]:
-                        q.append([idx + 1, transition[1]])
 
         if string == "":
             ans = True
+        else:
+            q = deque()  # queue -> states from i to last character in S | (index, state)
+            q.append([0, self.initial_state])  # Starts from 0
+
+            while q and not ans:
+                idx, state = q.popleft()
+
+                if idx == len(string) and state in self.f:
+                    ans = True
+                elif idx < len(string):
+                    if string[idx] not in self.sigma:
+                        raise InputError(string[idx], 'Is not declared in sigma')
+
+                    if state in self.delta:
+                        # Search through states
+                        for transition in self.delta[state].items():
+                            # transition: ('1', 'q0')
+                            if string[idx] == transition[0]:
+                                q.append([idx + 1, transition[1]])
 
         return ans
 
     def is_valid(self) -> bool:
         """ Returns True if the DFA is a valid automata """
+        sigma_error_msg_not_q = "Is not declared in Q"
+        sigma_error_msg_not_sigma = "Is not declared in sigma"
 
         # Validate if the initial state is in the set Q
         if self.initial_state not in self.q:
-            raise SigmaError(self.initial_state, 'Is not declared in Q')
+            raise SigmaError(self.initial_state, sigma_error_msg_not_q)
 
         # Validate if the delta transitions are in the set Q
         for d in self.delta:
             if d not in self.q:
-                raise SigmaError(d, 'Is not declared in Q')
+                raise SigmaError(d, sigma_error_msg_not_q)
 
             # Validate if the d transitions are valid
             for s in self.delta[d]:
                 if s not in self.sigma:
-                    raise SigmaError(s, 'Is not declared in sigma')
+                    raise SigmaError(s, sigma_error_msg_not_sigma)
                 elif self.delta[d][s] not in self.q:
-                    raise SigmaError(self.delta[d][s], 'Is not declared Q')
+                    raise SigmaError(self.delta[d][s], sigma_error_msg_not_q)
 
         # Validate if the final state are in Q
         for f in self.f:
             if f not in self.q:
-                raise SigmaError(f, 'Is not declared in Q')
+                raise SigmaError(f, sigma_error_msg_not_q)
 
         # None of the above cases failed then this DFA is valid
         return True
