@@ -7,6 +7,23 @@ from graphviz import Digraph
 from automathon.finiteAutomata.dfa import DFA
 
 
+def _get_new_delta_real_value(
+        delta: dict[str, dict[str, list[str]]],
+        real_value: dict[str, str]
+) -> dict[str, dict[str, set[str]]]:
+    new_delta = dict()
+    for q, transition in delta.items():
+        tmp_dict = dict()
+        for s, states in transition.items():
+            tmp_states = []
+            for state in states:
+                tmp_states.append(real_value[state])
+
+            tmp_dict[s] = set(tmp_states.copy())
+        new_delta[real_value[q]] = tmp_dict.copy()
+    return new_delta
+
+
 class NFA:
     """A Class used to represent a Non-Deterministic Finite Automaton
 
@@ -14,10 +31,10 @@ class NFA:
 
   Attributes
   - - - - - - - - - - - - - - - - - -
-  Q : set
+  q : set
     Set of strings where each string represent the states.
     Ex:
-      Q = {'q0', 'q1', 'q2'}
+      q = {'q0', 'q1', 'q2'}
 
   sigma : set
     Set of strings that represents the alphabet.
@@ -42,31 +59,31 @@ class NFA:
                        },
               }
   
-  initialState : str
-    String that represents the initial state from where any input is processed (initialState ∈ Q / initialState in Q).
+  initial_state : str
+    String that represents the initial state from where any input is processed (initial_state ∈ Q / initial_state in q).
     Ex:
-      initialState = 'q0'
+      initial_state = 'q0'
   
-  F : set
-    Set of strings that represent the final state/states of Q (F ⊆ Q).
+  f : set
+    Set of strings that represent the final state/states of Q (f ⊆ Q).
     Ex:
-      F = {'q0', 'q1'}
+      f = {'q0', 'q1'}
   
 
   Methods
   - - - - - - - - - - - - - - - - - -
 
-  isValid() -> bool : Returns True if the NFA is a valid automata
-  accept(S : str) -> bool : Returns True if the given string S is accepted by the NFA
+  is_valid() -> bool : Returns True if the NFA is a valid automata
+  accept(string : str) -> bool : Returns True if the given string is accepted by the NFA
   complement() -> NFA : Returns the complement of the NFA
   """
 
-    def __init__(self, Q: set, sigma: set, delta: dict, initialState: str, F: set):
+    def __init__(self, q: set, sigma: set, delta: dict, initial_state: str, f: set):
         """
     Parameters
     - - - - - - - - - - - - - - - - - -
     
-    Q : set
+    q : set
       Set of strings where each string represent the states.
     
     sigma : set
@@ -75,27 +92,28 @@ class NFA:
     delta : dict
       Dictionary that represents the transition function.
     
-    initialState : str
-      String that represents the initial state from where any input is processed (initialState ∈ Q / initialState in Q).
+    initial_state : str
+      String that represents the initial state from where any input is processed
+      (initial_state ∈ Q / initial_state in q).
     
-    F : set
-      Set of strings that represent the final state/states of Q (F ⊆ Q).
+    f : set
+      Set of strings that represent the final state/states of Q (f ⊆ Q).
     """
-        self.Q = Q
+        self.q = q
         self.sigma = sigma
         self.delta = delta
-        self.initialState = initialState
-        self.F = F
+        self.initial_state = initial_state
+        self.f = f
 
-    def accept(self, S: str) -> bool:
-        """ Returns True if the given string S is accepted by the NFA
+    def accept(self, string: str) -> bool:
+        """ Returns True if the given string is accepted by the NFA
 
-    The string S will be accepted if ∀a · a ∈ S ⇒ a ∈ sigma, which means that all the characters in S must be in sigma
-    (must be in the alphabet).
+    The string will be accepted if ∀a · a ∈ string ⇒ a ∈ sigma, which means that all the characters in string must be
+    in sigma (must be in the alphabet).
 
     Parameters
     - - - - - - - - - - - - - - - - - -
-    S : str
+    string : str
       A string that the NFA will try to process.
     """
 
@@ -104,19 +122,19 @@ class NFA:
         # BFS states
 
         q = deque()  # queue -> states from i to last character in S | (index, state)
-        q.append([0, self.initialState])  # Starts from 0
+        q.append([0, self.initial_state])  # Starts from 0
         ans = False  # Flag
 
         while q and not ans:
-            frontQ = q.popleft()
-            idx = frontQ[0]
-            state = frontQ[1]
+            front_q = q.popleft()
+            idx = front_q[0]
+            state = front_q[1]
 
-            if idx == len(S):
-                if state in self.F:
+            if idx == len(string):
+                if state in self.f:
                     ans = True
-            elif S[idx] not in self.sigma:
-                raise InputError(S[idx], 'Is not declared in sigma')
+            elif string[idx] not in self.sigma:
+                raise InputError(string[idx], 'Is not declared in sigma')
             elif state in self.delta:
                 # Search through states
                 for transition in self.delta[state].items():
@@ -128,12 +146,12 @@ class NFA:
                         for state in states:
                             # Do not consume character
                             q.append([idx, state])
-                    elif S[idx] == d:
+                    elif string[idx] == d:
                         for state in states:
                             # Consume character
                             q.append([idx + 1, state])
 
-        if S == "":
+        if string == "":
             ans = True
 
         return ans
@@ -144,15 +162,15 @@ class NFA:
         not_declared_state = None
 
         # Validate if the initial state is in the set Q
-        if self.initialState not in self.Q:
-            not_declared_state = self.initialState
+        if self.initial_state not in self.q:
+            not_declared_state = self.initial_state
 
         # Validate if the delta transitions are in the set Q
         for d in self.delta:
             if not_declared_state is not None:
                 break
 
-            if d != "" and d not in self.Q:
+            if d != "" and d not in self.q:
                 not_declared_state = d
 
             # Validate if the d transitions are valid
@@ -160,12 +178,12 @@ class NFA:
                 if s != "" and s not in self.sigma:
                     not_declared_state = s
                 for q in self.delta[d][s]:
-                    if q not in self.Q:
+                    if q not in self.q:
                         not_declared_state = self.delta[d][s]
 
         # Validate if the final state are in Q
-        for f in self.F:
-            if f not in self.Q:
+        for f in self.f:
+            if f not in self.q:
                 not_declared_state = f
 
         if not_declared_state is not None:
@@ -174,13 +192,13 @@ class NFA:
 
     def complement(self) -> 'NFA':
         """Returns the complement of the NFA."""
-        Q = self.Q
+        q = self.q
         sigma = self.sigma
         delta = self.delta
-        initialState = self.initialState
-        F = {state for state in self.Q if state not in self.F}
+        initial_state = self.initial_state
+        f = {state for state in self.q if state not in self.f}
 
-        return NFA(Q, sigma, delta, initialState, F)
+        return NFA(q, sigma, delta, initial_state, f)
 
     def get_e_closure(self, q, visited=None):
         """Returns a list of the epsilon closures from estate q"""
@@ -205,95 +223,95 @@ class NFA:
 
     def remove_epsilon_transitions(self) -> 'NFA':
         """Returns a copy of the actual NFA that doesn't contain epsilon transitions"""
-        Qprime = self.Q.copy()
-        deltaPrime = self.delta.copy()
-        deltaInitState = self.initialState
-        deltaF = self.F.copy()
+        q_prime = self.q.copy()
+        delta_prime = self.delta.copy()
+        delta_init_state = self.initial_state
+        delta_f = self.f.copy()
 
         if self.contains_epsilon_transitions():
-            deltaPrime = dict()
-            for q in Qprime:
+            delta_prime = dict()
+            for q in q_prime:
                 closure_states = self.get_e_closure(q)
 
                 for sigma in self.sigma:
-                    toEpsiClosure = list()
-                    newTransitions = list()
+                    to_epsilon_closure = list()
+                    new_transitions = list()
 
                     # Get the transitions from sigma in each epsilon closure
                     for closure_state in closure_states:
-                        if closure_state in self.F:
-                            deltaF.add(q)
+                        if closure_state in self.f:
+                            delta_f.add(q)
                         if closure_state in self.delta and sigma in self.delta[closure_state]:
-                            toEpsiClosure.extend(self.delta[closure_state][sigma])
+                            to_epsilon_closure.extend(self.delta[closure_state][sigma])
 
                     # Get the new transitions from the epsilon closure
-                    for epsiClosure in toEpsiClosure:
-                        newTransitions.extend(self.get_e_closure(epsiClosure))
+                    for epsilon_closure in to_epsilon_closure:
+                        new_transitions.extend(self.get_e_closure(epsilon_closure))
 
-                    if q not in deltaPrime:
-                        deltaPrime[q] = dict()
+                    if q not in delta_prime:
+                        delta_prime[q] = dict()
 
                     if sigma != '':
-                        deltaPrime[q][sigma] = set(newTransitions)
+                        delta_prime[q][sigma] = set(new_transitions)
 
-        return NFA(Qprime, self.sigma, deltaPrime, deltaInitState, deltaF)
+        return NFA(q_prime, self.sigma, delta_prime, delta_init_state, delta_f)
 
     def get_dfa(self) -> DFA:
         """Convert the actual NFA to DFA and return its conversion"""
 
-        local_nfa = NFA(self.Q, self.sigma, self.delta, self.initialState, self.F)
+        local_nfa = NFA(self.q, self.sigma, self.delta, self.initial_state, self.f)
         local_nfa = local_nfa.remove_epsilon_transitions()
 
-        Qprime = []
-        deltaPrime = dict()
+        q_prime = []
+        delta_prime = dict()
 
         queue = deque()
-        visited = [[local_nfa.initialState]]
-        queue.append([local_nfa.initialState])
+        visited = [[local_nfa.initial_state]]
+        queue.append([local_nfa.initial_state])
 
         while queue:
             qs = queue.pop()  # state Q
 
-            T = dict()  # {str : list}
+            local_transitions = dict()  # {str : list}
 
             for q in qs:
                 if q in local_nfa.delta:
                     for s in local_nfa.delta[q]:
                         tmp = local_nfa.delta[q][s].copy()
                         if tmp:
-                            if s in T:
+                            if s in local_transitions:
                                 # avoid add repeated values
-                                T[s].extend([k for k in tmp if k not in T[s]])
+                                local_transitions[s].extend([k for k in tmp if k not in local_transitions[s]])
                             else:
-                                T[s] = list(tmp)
+                                local_transitions[s] = list(tmp)
 
-            for t in T:
-                T[t].sort()
-                tmp = T[t].copy()
+            for transition in local_transitions:
+                local_transitions[transition].sort()
+                tmp = local_transitions[transition].copy()
                 if tmp not in visited:
                     queue.append(tmp)
                     visited.append(tmp)
-                T[t] = str(T[t])
+                local_transitions[transition] = str(local_transitions[transition])
 
-            deltaPrime[str(qs)] = T
-            Qprime.append(qs)
+            delta_prime[str(qs)] = local_transitions
+            q_prime.append(qs)
 
-        Fprime = set()
+        f_prime = set()
 
-        for qs in Qprime:
+        for qs in q_prime:
             for q in qs:
-                if q in local_nfa.F:
-                    Fprime.add(str(qs))
+                if q in local_nfa.f:
+                    f_prime.add(str(qs))
                     break
 
         aux = set()
 
-        for qs in Qprime:
+        for qs in q_prime:
             aux.add(str(qs))
 
-        Qprime = aux
+        q_prime = aux
 
-        return DFA(Qprime, local_nfa.sigma, deltaPrime, str([local_nfa.initialState]), Fprime)
+        return DFA(q_prime, local_nfa.sigma, delta_prime, str([local_nfa.initial_state]), f_prime)
 
     def minimize(self):
         """Minimize the automata and return the NFA result of the minimization"""
@@ -308,95 +326,83 @@ class NFA:
         new_tags = dict()
 
         # New values
-        Q = set()
+        q = set()
         delta = dict()
-        F = set()
+        f = set()
 
         # Setting the new label for each state
-        tmpQ = list(self.Q)
-        tmpQ.sort()
+        tmp_q = list(self.q)
+        tmp_q.sort()
 
-        for q in tmpQ:
-            new_tags[q] = str(idx)
-            Q.add(str(idx))
+        for _q in tmp_q:
+            new_tags[_q] = str(idx)
+            q.add(str(idx))
             idx += 1
 
-        initial_state = new_tags[self.initialState]
+        initial_state = new_tags[self.initial_state]
 
         # Changing the labels for the final states
-        for f in self.F:
-            F.add(new_tags[f])
+        for _f in self.f:
+            f.add(new_tags[_f])
 
-        for q in self.delta:
-            delta[new_tags[q]] = dict()
-            for s in self.delta[q]:
-                nxtStates = list()
-                for nxtState in self.delta[q][s]:
-                    nxtStates.append(new_tags[nxtState])
+        for _q in self.delta:
+            delta[new_tags[_q]] = dict()
+            for s in self.delta[_q]:
+                nxt_states = list()
+                for nxt_state in self.delta[_q][s]:
+                    nxt_states.append(new_tags[nxt_state])
 
-                delta[new_tags[q]][s] = set(nxtStates)
+                delta[new_tags[_q]][s] = set(nxt_states)
 
-        self.Q, self.F, self.delta, self.initialState = Q, F, delta, initial_state
+        self.q, self.f, self.delta, self.initial_state = q, f, delta, initial_state
 
-    def union(self, M: 'NFA') -> 'NFA':
-        """Given a NFA M returns the union automaton"""
-        sigma = self.sigma.union(M.sigma)
-        Q = set()
-        F = set()
-        initialState = "q0"
-        Q.add(initialState)
-        realValueSelf = dict()
-        realValueM = dict()
-        selfDelta = dict()
-        mDelta = dict()
+    def union(self, m: 'NFA') -> 'NFA':
+        """Given a NFA m returns the union automaton"""
+        sigma = self.sigma.union(m.sigma)
+        q = set()
+        f = set()
+        initial_state = "q0"
+        q.add(initial_state)
+        real_value_self = dict()
+        real_value_m = dict()
+
         # Fix possible errors when using the dictionaries with the name of the states
-        for i, q in enumerate(self.Q, 1):
-            realValueSelf[q] = "q{}".format(i)
-            Q.add(realValueSelf[q])
+        for i, _q in enumerate(self.q, 1):
+            real_value_self[_q] = "q{}".format(i)
+            q.add(real_value_self[_q])
 
-        for i, s in enumerate(M.Q):
-            realValueM[s] = "s{}".format(i)
-            Q.add(realValueM[s])
+        for i, s in enumerate(m.q):
+            real_value_m[s] = "s{}".format(i)
+            q.add(real_value_m[s])
 
-        for q in self.F:
-            F.add(realValueSelf[q])
+        for _q in self.f:
+            f.add(real_value_self[_q])
 
-        for q in M.F:
-            F.add(realValueM[q])
+        for _q in m.f:
+            f.add(real_value_m[_q])
 
         # Replace the values
-        for q, transition in self.delta.items():
-            # q : string, transition : {string -> list(string)}
-            tmpDict = dict()
-            for s, states in transition.items():
-                tmpStates = []
-                for state in states:
-                    tmpStates.append(realValueSelf[state])
+        self_delta = _get_new_delta_real_value(self.delta, real_value_self)
+        m_delta = _get_new_delta_real_value(m.delta, real_value_m)
 
-                tmpDict[s] = set(tmpStates.copy())
-            selfDelta[realValueSelf[q]] = tmpDict.copy()
+        delta = {
+                    **self_delta,
+                    **m_delta,
+                    initial_state: {
+                        '': {
+                            real_value_self[self.initial_state],
+                            real_value_m[m.initial_state]
+                        }
+                    }
+        }
 
-        for q, transition in M.delta.items():
-            # q : string, transition : {string -> list(string)}
-            tmpDict = dict()
-            for s, states in transition.items():
-                tmpStates = []
-                for state in states:
-                    tmpStates.append(realValueM[state])
+        return NFA(q, sigma, delta, initial_state, f)
 
-                tmpDict[s] = set(tmpStates.copy())
-            mDelta[realValueM[q]] = tmpDict.copy()
-
-        delta = {**selfDelta, **mDelta, initialState: {
-            '': {realValueSelf[self.initialState], realValueM[M.initialState]}}}
-
-        return NFA(Q, sigma, delta, initialState, F)
-
-    def product(self, M: 'NFA') -> 'NFA':
+    def product(self, m: 'NFA') -> 'NFA':
         """Given a DFA M returns the product automaton"""
         # Using DFA conversion
         a = self.get_dfa()
-        b = M.get_dfa()
+        b = m.get_dfa()
 
         nfa = a.product(b).get_nfa()
 
@@ -409,14 +415,14 @@ class NFA:
 
         dot.node("", "", shape='plaintext')
 
-        for f in self.F:
-            dot.node(f, f, shape='doublecircle')
+        for _f in self.f:
+            dot.node(_f, _f, shape='doublecircle')
 
-        for q in self.Q:
-            if q not in self.F:
-                dot.node(q, q, shape='circle')
+        for _q in self.q:
+            if _q not in self.f:
+                dot.node(_q, _q, shape='circle')
 
-        dot.edge("", self.initialState, label="")
+        dot.edge("", self.initial_state, label="")
 
         for q in self.delta:
             for s in self.delta[q]:

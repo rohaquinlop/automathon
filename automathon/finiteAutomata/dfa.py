@@ -13,10 +13,10 @@ class DFA:
 
   Attributes
   - - - - - - - - - - - - - - - - - -
-  Q : set
+  q : set
     Set of strings where each string represent the states.
     Ex:
-      Q = {'q0', 'q1', 'q2'}
+      q = {'q0', 'q1', 'q2'}
 
   sigma : set
     Set of strings that represents the alphabet.
@@ -32,31 +32,31 @@ class DFA:
                 'q2' : {'0' : 'q1', '1' : 'q2'},
               }
   
-  initialState : str
-    String that represents the initial state from where any input is processed (initialState ∈ Q / initialState in Q).
+  initial_state : str
+    String that represents the initial state from where any input is processed (initial_state ∈ q / initial_state in q).
     Ex:
-      initialState = 'q0'
+      initial_state = 'q0'
   
-  F : set
-    Set of strings that represent the final state/states of Q (F ⊆ Q).
+  f : set
+    Set of strings that represent the final state/states of Q (f ⊆ Q).
     Ex:
-      F = {'q0'}
+      f = {'q0'}
   
 
   Methods
   - - - - - - - - - - - - - - - - - -
 
-  isValid() -> bool : Returns True if the DFA is a valid automata
+  is_valid() -> bool : Returns True if the DFA is a valid automata
   accept(S : str) -> bool : Returns True if the given string S is accepted by the DFA
   complement() -> DFA : Returns the complement of the DFA
   """
 
-    def __init__(self, Q: set, sigma: set, delta: dict, initialState: str, F: set):
+    def __init__(self, q: set, sigma: set, delta: dict, initial_state: str, f: set):
         """
     Parameters
     - - - - - - - - - - - - - - - - - -
     
-    Q : set
+    q : set
       Set of strings where each string represent the states.
     
     sigma : set
@@ -65,23 +65,24 @@ class DFA:
     delta : dict
       Dictionary that represents the transition function.
     
-    initialState : str
-      String that represents the initial state from where any input is processed (initialState ∈ Q / initialState in Q).
+    initial_state : str
+      String that represents the initial state from where any input is processed
+      (initial_state ∈ q / initial_state in q).
     
-    F : set
-      Set of strings that represent the final state/states of Q (F ⊆ Q).
+    f : set
+      Set of strings that represent the final state/states of Q (f ⊆ Q).
     """
-        self.Q = Q
+        self.q = q
         self.sigma = sigma
         self.delta = delta
-        self.initialState = initialState
-        self.F = F
+        self.initial_state = initial_state
+        self.f = f
 
-    def accept(self, S: str) -> bool:
-        """ Returns True if the given string S is accepted by the DFA
+    def accept(self, string: str) -> bool:
+        """ Returns True if the given string is accepted by the DFA
 
-    The string S will be accepted if ∀a · a ∈ S ⇒ a ∈ sigma, which means that all the characters in S must be in sigma
-    (must be in the alphabet).
+    The string will be accepted if ∀a · a ∈ string ⇒ a ∈ sigma, which means that all the characters in string must be
+    in sigma (must be in the alphabet).
 
     Parameters
     - - - - - - - - - - - - - - - - - -
@@ -91,132 +92,132 @@ class DFA:
 
         # Basic Idea: Search through states (delta) in the DFA, since the initial state to the final states
 
-        # BFS states
-
-        q = deque()  # queue -> states from i to last character in S | (index, state)
-        q.append([0, self.initialState])  # Starts from 0
         ans = False  # Flag
 
-        while q and not ans:
-            frontQ = q.popleft()
-            idx = frontQ[0]
-            state = frontQ[1]
-
-            if idx == len(S):
-                if state in self.F:
-                    ans = True
-            elif S[idx] not in self.sigma:
-                raise InputError(S[idx], 'Is not declared in sigma')
-            elif state in self.delta:
-                # Search through states
-                for transition in self.delta[state].items():
-                    # transition: ('1', 'q0')
-                    if S[idx] == transition[0]:
-                        q.append([idx + 1, transition[1]])
-
-        if S == "":
+        if string == "":
             ans = True
+        else:
+            q = deque()  # queue -> states from i to last character in S | (index, state)
+            q.append([0, self.initial_state])  # Starts from 0
+
+            while q and not ans:
+                idx, state = q.popleft()
+
+                if idx == len(string) and state in self.f:
+                    ans = True
+                elif idx < len(string):
+                    if string[idx] not in self.sigma:
+                        raise InputError(string[idx], 'Is not declared in sigma')
+
+                    if state in self.delta:
+                        # Search through states
+                        for transition in self.delta[state].items():
+                            # transition: ('1', 'q0')
+                            if string[idx] == transition[0]:
+                                q.append([idx + 1, transition[1]])
 
         return ans
 
     def is_valid(self) -> bool:
         """ Returns True if the DFA is a valid automata """
+        sigma_error_msg_not_q = "Is not declared in Q"
+        sigma_error_msg_not_sigma = "Is not declared in sigma"
 
         # Validate if the initial state is in the set Q
-        if self.initialState not in self.Q:
-            raise SigmaError(self.initialState, 'Is not declared in Q')
+        if self.initial_state not in self.q:
+            raise SigmaError(self.initial_state, sigma_error_msg_not_q)
 
         # Validate if the delta transitions are in the set Q
         for d in self.delta:
-            if d not in self.Q:
-                raise SigmaError(d, 'Is not declared in Q')
+            if d not in self.q:
+                raise SigmaError(d, sigma_error_msg_not_q)
 
             # Validate if the d transitions are valid
             for s in self.delta[d]:
                 if s not in self.sigma:
-                    raise SigmaError(s, 'Is not declared in sigma')
-                elif self.delta[d][s] not in self.Q:
-                    raise SigmaError(self.delta[d][s], 'Is not declared Q')
+                    raise SigmaError(s, sigma_error_msg_not_sigma)
+                elif self.delta[d][s] not in self.q:
+                    raise SigmaError(self.delta[d][s], sigma_error_msg_not_q)
 
         # Validate if the final state are in Q
-        for f in self.F:
-            if f not in self.Q:
-                raise SigmaError(f, 'Is not declared in Q')
+        for f in self.f:
+            if f not in self.q:
+                raise SigmaError(f, sigma_error_msg_not_q)
 
         # None of the above cases failed then this DFA is valid
         return True
 
     def complement(self) -> 'DFA':
         """Returns the complement of the DFA."""
-        Q = self.Q
+        q = self.q
         sigma = self.sigma
         delta = self.delta
-        initialState = self.initialState
-        F = {state for state in self.Q if state not in self.F}
+        initial_state = self.initial_state
+        f = {state for state in self.q if state not in self.f}
 
-        return DFA(Q, sigma, delta, initialState, F)
+        return DFA(q, sigma, delta, initial_state, f)
 
     def get_nfa(self):
         from automathon.finiteAutomata.nfa import NFA
         """Convert the actual DFA to NFA class and return it's conversion"""
-        Q = self.Q.copy()
+        q = self.q.copy()
         delta = dict()
-        initialState = self.initialState
-        F = self.F.copy()
+        initial_state = self.initial_state
+        f = self.f.copy()
         sigma = self.sigma
 
         for state, transition in self.delta.items():
             # state : str, transition : dict(sigma, Q)
             tmp = dict()
-            for s, q in transition.items():
+            for s, _q in transition.items():
                 # s : sigma
-                tmp[s] = [''.join(q)]
+                tmp[s] = [''.join(_q)]
 
             delta[state] = tmp
 
-        return NFA(Q, sigma, delta, initialState, F)
+        return NFA(q, sigma, delta, initial_state, f)
 
-    def product(self, M: 'DFA') -> 'DFA':
-        """Given a DFA M returns the product automaton"""
+    def product(self, m: 'DFA') -> 'DFA':
+        """Given a DFA m returns the product automaton"""
         delta = dict()
-        Q = set()
-        F = set()
-        sigma = self.sigma.intersection(M.sigma)
+        q = set()
+        f = set()
+        sigma = self.sigma.intersection(m.sigma)
 
         for state, transition in self.delta.items():
             # i : str, j : dict(sigma, Q)
-            for stateM, transitionM in M.delta.items():
+            for state_m, transition_m in m.delta.items():
                 # stateM : str, transitionM : dict(sigma, Q)
                 for s in transition:
-                    if s in transitionM:
+                    if s in transition_m:
                         # sigma value in common
                         sigma.add(s)
 
-                        tmp = str([state, stateM])
-                        tmp1 = str([transition[s], transitionM[s]])
+                        tmp = str([state, state_m])
+                        tmp1 = str([transition[s], transition_m[s]])
                         aux = dict()
                         aux[s] = tmp1
 
-                        Q.add(tmp)
-                        Q.add(tmp1)
+                        q.add(tmp)
+                        q.add(tmp1)
 
-                        if state in self.F and stateM in M.F:
-                            F.add(tmp)
+                        if state in self.f and state_m in m.f:
+                            f.add(tmp)
 
-                        if transition[s] in self.F and transitionM[s] in M.F:
-                            F.add(tmp1)
+                        if transition[s] in self.f and transition_m[s] in m.f:
+                            f.add(tmp1)
 
                         if tmp in delta:
                             delta[tmp].update(aux)
                         else:
                             delta[tmp] = aux
 
-        return DFA(Q, sigma, delta, str([self.initialState, M.initialState]), F)
+        return DFA(q, sigma, delta, str([self.initial_state, m.initial_state]), f)
 
-    def union(self, M: 'DFA') -> 'DFA':
-        """Given a DFA M returns the union automaton"""
+    def union(self, m: 'DFA') -> 'DFA':
+        """Given a DFA  returns the union automaton"""
         tmp_nfa = self.get_nfa()
-        tmp_nfa = tmp_nfa.union(M.get_nfa()).remove_epsilon_transitions()
+        tmp_nfa = tmp_nfa.union(m.get_nfa()).remove_epsilon_transitions()
 
         return tmp_nfa.get_dfa()
 
@@ -227,14 +228,14 @@ class DFA:
 
         dot.node("", "", shape='plaintext')
 
-        for f in self.F:
+        for f in self.f:
             dot.node(f, f, shape='doublecircle')
 
-        for q in self.Q:
-            if q not in self.F:
+        for q in self.q:
+            if q not in self.f:
                 dot.node(q, q, shape='circle')
 
-        dot.edge("", self.initialState, label="")
+        dot.edge("", self.initial_state, label="")
 
         for q in self.delta:
             for s in self.delta[q]:
