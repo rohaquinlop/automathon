@@ -4,43 +4,34 @@ from automathon import NFA
 
 class TestNFA(unittest.TestCase):
     fa = NFA(
-        q={'q1', 'q2', 'q3', 'q4'},
-        sigma={'0', '1'},
+        q={"q1", "q2", "q3", "q4"},
+        sigma={"0", "1"},
         delta={
-            'q1': {
-                '0': {'q1'},
-                '1': {'q1', 'q2'}
+            "q1": {"0": {"q1"}, "1": {"q1", "q2"}},
+            "q2": {"0": {"q3"}, "": {"q3"}},
+            "q3": {
+                "1": {"q4"},
             },
-            'q2': {
-                '0': {'q3'},
-                '': {'q3'}
-            },
-            'q3': {
-                '1': {'q4'},
-            },
-            'q4': {
-                '0': {'q4'},
-                '1': {'q4'},
+            "q4": {
+                "0": {"q4"},
+                "1": {"q4"},
             },
         },
-        initial_state='q1',
-        f={'q4'}
+        initial_state="q1",
+        f={"q4"},
     )
 
     fa_1 = NFA(
-        q={'3', '1', '2', '4', '0'},
-        sigma={'', 'AA', 'BB', 'DD', 'CC'},
+        q={"3", "1", "2", "4", "0"},
+        sigma={"", "AA", "BB", "DD", "CC"},
         delta={
-            '0': {'AA': {'1'}},
-            '1': {'BB': {'2'}},
-            '2': {'CC': {'3'}},
-            '3': {
-                '': {'1'},
-                'DD': {'4'}
-            }
+            "0": {"AA": {"1"}},
+            "1": {"BB": {"2"}},
+            "2": {"CC": {"3"}},
+            "3": {"": {"1"}, "DD": {"4"}},
         },
-        initial_state='0',
-        f={'4'}
+        initial_state="0",
+        f={"4"},
     )
 
     def test_isValid(self):
@@ -73,37 +64,19 @@ class TestNFA(unittest.TestCase):
 
     def test_product(self):
         nfa = NFA(
-            q={'A', 'B'},
-            sigma={'a', 'b'},
-            delta={
-                'A': {
-                    'a': {'B'},
-                    'b': {'A'}
-                },
-                'B': {
-                    'a': {'A'},
-                    'b': {'B'}
-                }
-            },
-            initial_state='A',
-            f={'A'}
+            q={"A", "B"},
+            sigma={"a", "b"},
+            delta={"A": {"a": {"B"}, "b": {"A"}}, "B": {"a": {"A"}, "b": {"B"}}},
+            initial_state="A",
+            f={"A"},
         )
 
         nfa_1 = NFA(
-            q={'C', 'D'},
-            sigma={'a', 'b'},
-            delta={
-                'C': {
-                    'a': {'C'},
-                    'b': {'D'}
-                },
-                'D': {
-                    'a': {'D'},
-                    'b': {'C'}
-                }
-            },
-            initial_state='C',
-            f={'C'}
+            q={"C", "D"},
+            sigma={"a", "b"},
+            delta={"C": {"a": {"C"}, "b": {"D"}}, "D": {"a": {"D"}, "b": {"C"}}},
+            initial_state="C",
+            f={"C"},
         )
 
         product_result = nfa.product(nfa_1)
@@ -117,31 +90,20 @@ class TestNFA(unittest.TestCase):
 
     def test_union(self):
         nfa = NFA(
-            q={'A'},
-            sigma={'a'},
-            delta={
-                'A': {
-                    'a': {'A'}
-                }
-            },
-            initial_state='A',
-            f={'A'}
+            q={"A"}, sigma={"a"}, delta={"A": {"a": {"A"}}}, initial_state="A", f={"A"}
         )
 
         nfa_1 = NFA(
-            q={'C', 'D', 'E'},
-            sigma={'a', 'b'},
+            q={"C", "D", "E"},
+            sigma={"a", "b"},
             delta={
-                'C': {
-                    'b': {'D'},
+                "C": {
+                    "b": {"D"},
                 },
-                'D': {
-                    'a': {'E'},
-                    'b': {'D'}
-                }
+                "D": {"a": {"E"}, "b": {"D"}},
             },
-            initial_state='C',
-            f={'E'}
+            initial_state="C",
+            f={"E"},
         )
 
         union_result = nfa.union(nfa_1)
@@ -156,22 +118,11 @@ class TestNFA(unittest.TestCase):
         from automathon import DFA
 
         automata_1 = NFA(
-            q={'3', '1', '2', '0'},
-            sigma={'', 'A', 'B', 'C'},
-            delta={
-                '0': {
-                    'A': {'1'}
-                },
-                '1': {
-                    'B': {'2'},
-                    '': {'2'}
-                },
-                '2': {
-                    'C': {'3'}
-                }
-            },
-            initial_state='0',
-            f={'3'}
+            q={"3", "1", "2", "0"},
+            sigma={"", "A", "B", "C"},
+            delta={"0": {"A": {"1"}}, "1": {"B": {"2"}, "": {"2"}}, "2": {"C": {"3"}}},
+            initial_state="0",
+            f={"3"},
         )
 
         automata_2: NFA = automata_1.remove_epsilon_transitions()
@@ -183,5 +134,5 @@ class TestNFA(unittest.TestCase):
         self.assertTrue(automata_4.is_valid())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
