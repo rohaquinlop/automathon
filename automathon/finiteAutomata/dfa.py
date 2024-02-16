@@ -1,94 +1,88 @@
 # Exceptions module
-from __future__ import annotations
+from __future__ import (
+    annotations,
+)
 
-from automathon.errors.errors import *
-from collections import deque
-from graphviz import Digraph
+from automathon.errors.errors import (
+    InputError,
+    SigmaError,
+)
+from collections import (
+    deque,
+)
+from dataclasses import (
+    dataclass,
+)
+from graphviz import (
+    Digraph,
+)
 
 
+@dataclass
 class DFA:
     """A Class used to represent a Deterministic Finite Automaton
 
-  ...
-
-  Attributes
-  - - - - - - - - - - - - - - - - - -
-  q : set
-    Set of strings where each string represent the states.
-    Ex:
-      q = {'q0', 'q1', 'q2'}
-
-  sigma : set
-    Set of strings that represents the alphabet.
-    Ex:
-      sigma = {'0', '1'}
-  
-  delta : dict
-    Dictionary that represents the transition function.
-    Ex:
-      delta = {
-                'q0' : {'0' : 'q0', '1' : 'q1'},
-                'q1' : {'0' : 'q2', '1' : 'q0'},
-                'q2' : {'0' : 'q1', '1' : 'q2'},
-              }
-  
-  initial_state : str
-    String that represents the initial state from where any input is processed (initial_state ∈ q / initial_state in q).
-    Ex:
-      initial_state = 'q0'
-  
-  f : set
-    Set of strings that represent the final state/states of Q (f ⊆ Q).
-    Ex:
-      f = {'q0'}
-  
-
-  Methods
-  - - - - - - - - - - - - - - - - - -
-
-  is_valid() -> bool : Returns True if the DFA is a valid automata
-  accept(S : str) -> bool : Returns True if the given string S is accepted by the DFA
-  complement() -> DFA : Returns the complement of the DFA
-  """
-
-    def __init__(self, q: set, sigma: set, delta: dict, initial_state: str, f: set):
-        """
-    Parameters
+    Attributes
     - - - - - - - - - - - - - - - - - -
-    
-    q : set
+    q : set[str]
       Set of strings where each string represent the states.
-    
-    sigma : set
+      Ex:
+        q = {'q0', 'q1', 'q2'}
+
+    sigma : set[str]
       Set of strings that represents the alphabet.
-    
-    delta : dict
+      Ex:
+        sigma = {'0', '1'}
+
+    delta : dict[str, dict[str, str]]
       Dictionary that represents the transition function.
-    
+      Ex:
+        delta = {
+                  'q0' : {'0' : 'q0', '1' : 'q1'},
+                  'q1' : {'0' : 'q2', '1' : 'q0'},
+                  'q2' : {'0' : 'q1', '1' : 'q2'},
+                }
+
     initial_state : str
-      String that represents the initial state from where any input is processed
-      (initial_state ∈ q / initial_state in q).
-    
-    f : set
+      String that represents the initial state from where any input is processed (initial_state ∈ q / initial_state in q).
+      Ex:
+        initial_state = 'q0'
+
+    f : set[str]
       Set of strings that represent the final state/states of Q (f ⊆ Q).
-    """
-        self.q = q
-        self.sigma = sigma
-        self.delta = delta
-        self.initial_state = initial_state
-        self.f = f
+      Ex:
+        f = {'q0'}
+
+
+    Methods
+    - - - - - - - - - - - - - - - - - -
+
+    is_valid() -> bool : Returns True if the DFA is a valid automata
+    accept(S : str) -> bool : Returns True if the given string S is accepted by the DFA
+    complement() -> DFA : Returns the complement of the DFA
+    get_nfa() -> NFA : Converts the actual DFA to NFA and returns its conversion
+    product(m: DFA) -> DFA : Given a DFA m, returns the product automaton
+    union(m: DFA) -> DFA : Given a DFA m, returns the union automaton
+    view(file_name: str, node_attr: dict[str, str] | None = None, edge_attr: dict[str, str] | None = None): Draw the actual
+    DFA and generates it as a png image."""
+
+    q: set[str]
+    sigma: set[str]
+    delta: dict[str, dict[str, str]]
+    initial_state: str
+    f: set[str]
 
     def accept(self, string: str) -> bool:
-        """ Returns True if the given string is accepted by the DFA
+        """Returns True if the given string is accepted by the DFA
 
-    The string will be accepted if ∀a · a ∈ string ⇒ a ∈ sigma, which means that all the characters in string must be
-    in sigma (must be in the alphabet).
+        The string will be accepted if ∀a · a ∈ string ⇒ a ∈ sigma, which means that all the characters in string must be
+        in sigma (must be in the alphabet).
 
-    Parameters
-    - - - - - - - - - - - - - - - - - -
-    S : str
-      A string that the DFA will try to process.
-    """
+        Parameters
+        - - - - - - - - - - - - - - - - - -
+        S : str
+          A string that the DFA will try to process.
+        """
 
         # Basic Idea: Search through states (delta) in the DFA, since the initial state to the final states
 
@@ -97,7 +91,9 @@ class DFA:
         if string == "":
             ans = True
         else:
-            q = deque()  # queue -> states from i to last character in S | (index, state)
+            q = (
+                deque()
+            )  # queue -> states from i to last character in S | (index, state)
             q.append([0, self.initial_state])  # Starts from 0
 
             while q and not ans:
@@ -107,7 +103,7 @@ class DFA:
                     ans = True
                 elif idx < len(string):
                     if string[idx] not in self.sigma:
-                        raise InputError(string[idx], 'Is not declared in sigma')
+                        raise InputError(string[idx], "Is not declared in sigma")
 
                     if state in self.delta:
                         # Search through states
@@ -119,7 +115,7 @@ class DFA:
         return ans
 
     def is_valid(self) -> bool:
-        """ Returns True if the DFA is a valid automata """
+        """Returns True if the DFA is a valid automata"""
         sigma_error_msg_not_q = "Is not declared in Q"
         sigma_error_msg_not_sigma = "Is not declared in sigma"
 
@@ -147,7 +143,7 @@ class DFA:
         # None of the above cases failed then this DFA is valid
         return True
 
-    def complement(self) -> 'DFA':
+    def complement(self) -> "DFA":
         """Returns the complement of the DFA."""
         q = self.q
         sigma = self.sigma
@@ -159,6 +155,7 @@ class DFA:
 
     def get_nfa(self):
         from automathon.finiteAutomata.nfa import NFA
+
         """Convert the actual DFA to NFA class and return it's conversion"""
         q = self.q.copy()
         delta = dict()
@@ -171,13 +168,13 @@ class DFA:
             tmp = dict()
             for s, _q in transition.items():
                 # s : sigma
-                tmp[s] = [''.join(_q)]
+                tmp[s] = ["".join(_q)]
 
             delta[state] = tmp
 
         return NFA(q, sigma, delta, initial_state, f)
 
-    def product(self, m: 'DFA') -> 'DFA':
+    def product(self, m: "DFA") -> "DFA":
         """Given a DFA m returns the product automaton"""
         delta = dict()
         q = set()
@@ -214,26 +211,33 @@ class DFA:
 
         return DFA(q, sigma, delta, str([self.initial_state, m.initial_state]), f)
 
-    def union(self, m: 'DFA') -> 'DFA':
+    def union(self, m: "DFA") -> "DFA":
         """Given a DFA  returns the union automaton"""
         tmp_nfa = self.get_nfa()
         tmp_nfa = tmp_nfa.union(m.get_nfa()).remove_epsilon_transitions()
 
         return tmp_nfa.get_dfa()
 
-    def view(self, file_name: str, node_attr: dict[str, str] | None = None, edge_attr: dict[str, str] | None = None):
-        dot = Digraph(name=file_name, format='png', node_attr=node_attr, edge_attr=edge_attr)
+    def view(
+        self,
+        file_name: str,
+        node_attr: dict[str, str] | None = None,
+        edge_attr: dict[str, str] | None = None,
+    ) -> None:
+        dot = Digraph(
+            name=file_name, format="png", node_attr=node_attr, edge_attr=edge_attr
+        )
 
-        dot.graph_attr['rankdir'] = 'LR'
+        dot.graph_attr["rankdir"] = "LR"
 
-        dot.node("", "", shape='plaintext')
+        dot.node("", "", shape="plaintext")
 
         for f in self.f:
-            dot.node(f, f, shape='doublecircle')
+            dot.node(f, f, shape="doublecircle")
 
         for q in self.q:
             if q not in self.f:
-                dot.node(q, q, shape='circle')
+                dot.node(q, q, shape="circle")
 
         dot.edge("", self.initial_state, label="")
 
