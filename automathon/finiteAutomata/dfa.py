@@ -20,51 +20,60 @@ from graphviz import (
 
 @dataclass
 class DFA:
-    """A Class used to represent a Deterministic Finite Automaton
+    """A class used to represent a Deterministic Finite Automaton (DFA).
 
     Attributes
-    - - - - - - - - - - - - - - - - - -
+    ----------
     q : set[str]
-      Set of strings where each string represent the states.
-      Ex:
-        q = {'q0', 'q1', 'q2'}
+        Set of strings where each string represents a state.
+        Example: q = {'q0', 'q1', 'q2'}
 
     sigma : set[str]
-      Set of strings that represents the alphabet.
-      Ex:
-        sigma = {'0', '1'}
+        Set of strings that represents the alphabet.
+        Example: sigma = {'0', '1'}
 
     delta : dict[str, dict[str, str]]
-      Dictionary that represents the transition function.
-      Ex:
-        delta = {
-                  'q0' : {'0' : 'q0', '1' : 'q1'},
-                  'q1' : {'0' : 'q2', '1' : 'q0'},
-                  'q2' : {'0' : 'q1', '1' : 'q2'},
-                }
+        Dictionary that represents the transition function.
+        Example: delta = {
+                      'q0' : {'0' : 'q0', '1' : 'q1'},
+                      'q1' : {'0' : 'q2', '1' : 'q0'},
+                      'q2' : {'0' : 'q1', '1' : 'q2'},
+                    }
 
     initial_state : str
-      String that represents the initial state from where any input is processed (initial_state ∈ q / initial_state in q).
-      Ex:
-        initial_state = 'q0'
+        String that represents the initial state from where any input is
+        processed (initial_state ∈ q / initial_state in q).
+        Example: initial_state = 'q0'
 
     f : set[str]
-      Set of strings that represent the final state/states of Q (f ⊆ Q).
-      Ex:
-        f = {'q0'}
-
+        Set of strings that represent the final state/states of Q (f ⊆ Q).
+        Example: f = {'q0'}
 
     Methods
-    - - - - - - - - - - - - - - - - - -
+    -------
+    is_valid() -> bool
+        Returns True if the DFA is a valid automata.
 
-    is_valid() -> bool : Returns True if the DFA is a valid automata
-    accept(S : str) -> bool : Returns True if the given string S is accepted by the DFA
-    complement() -> DFA : Returns the complement of the DFA
-    get_nfa() -> NFA : Converts the actual DFA to NFA and returns its conversion
-    product(m: DFA) -> DFA : Given a DFA m, returns the product automaton
-    union(m: DFA) -> DFA : Given a DFA m, returns the union automaton
-    view(file_name: str, node_attr: dict[str, str] | None = None, edge_attr: dict[str, str] | None = None): Draw the actual
-    DFA and generates it as a png image."""
+    accept(S : str) -> bool
+        Returns True if the given string S is accepted by the DFA.
+
+    complement() -> DFA
+        Returns the complement of the DFA.
+
+    get_nfa() -> NFA
+        Converts the actual DFA to NFA and returns its conversion.
+
+    product(m: DFA) -> DFA
+        Given a DFA m, returns the product automaton.
+
+    union(m: DFA) -> DFA
+        Given a DFA m, returns the union automaton.
+
+    view(
+        file_name : str, node_attr : dict[str, str] | None, edge_attr : dict[str, str] | None
+    ) -> None
+        Using the graphviz library, it creates a visual representation of the DFA
+        and saves it as a .png file with the name file_name"""
 
     q: set[str]
     sigma: set[str]
@@ -75,8 +84,9 @@ class DFA:
     def accept(self, string: str) -> bool:
         """Returns True if the given string is accepted by the DFA
 
-        The string will be accepted if ∀a · a ∈ string ⇒ a ∈ sigma, which means that all the characters in string must be
-        in sigma (must be in the alphabet).
+        The string will be accepted if ∀a · a ∈ string ⇒ a ∈ sigma, which means
+        that all the characters in string must be in sigma
+        (must be in the alphabet).
 
         Parameters
         - - - - - - - - - - - - - - - - - -

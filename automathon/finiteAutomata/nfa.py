@@ -21,22 +21,6 @@ from graphviz import (
 )
 
 
-def _get_new_delta_real_value(
-    delta: dict[str, dict[str, set[str]]], real_value: dict[str, str]
-) -> dict[str, dict[str, set[str]]]:
-    new_delta = dict()
-    for q, transition in delta.items():
-        tmp_dict = dict()
-        for s, states in transition.items():
-            tmp_states = []
-            for state in states:
-                tmp_states.append(real_value[state])
-
-            tmp_dict[s] = set(tmp_states.copy())
-        new_delta[real_value[q]] = tmp_dict.copy()
-    return new_delta
-
-
 @dataclass
 class NFA:
     """A Class used to represent a Non-Deterministic Finite Automaton
@@ -86,9 +70,50 @@ class NFA:
     Methods
     - - - - - - - - - - - - - - - - - -
 
-    is_valid() -> bool : Returns True if the NFA is a valid automata
-    accept(string : str) -> bool : Returns True if the given string is accepted by the NFA
-    complement() -> NFA : Returns the complement of the NFA"""
+    is_valid() -> bool
+        Returns True if the NFA is a valid automata
+
+    accept(string : str) -> bool
+        Returns True if the given string is accepted by the NFA
+
+    complement() -> NFA
+        Returns the complement of the NFA
+
+    _get_e_closure(q : str, visited : list[str] | None) -> list[str]
+        Returns a list of the epsilon closures from estate q
+
+    _get_new_delta_real_value(
+        delta : dict[str, dict[str, set[str]]], real_value : dict[str, str]
+    ) -> dict[str, dict[str, set[str]]]
+        Returns a new delta dictionary with the real values
+
+    contains_epsilon_transitions() -> bool
+        Returns True if the NFA contains Epsilon transitions (ε)
+
+    remove_epsilon_transitions() -> NFA
+        Returns a new NFA that is equivalent to the original NFA but without
+        epsilon transitions
+
+    get_dfa() -> DFA
+        Returns a DFA (Deterministic Finite Automaton) equivalent to the actual NFA
+
+    minimize() -> NFA
+        Minimize the automata and return the NFA result of the minimization
+
+    renumber() -> None
+        Change the name of the states, renumbering each of the labels
+
+    union(m : NFA) -> NFA
+        Given a NFA m returns the union automaton (NFA)
+
+    product(m : NFA) -> NFA
+        Given a NFA m returns the product automaton (NFA)
+
+    view(
+        file_name : str, node_attr : dict[str, str] | None, edge_attr : dict[str, str] | None
+    ) -> None
+        Using the graphviz library, it creates a visual representation of the NFA
+        and saves it as a .png file with the name file_name"""
 
     q: set[str]
     sigma: set[str]
@@ -230,7 +255,7 @@ class NFA:
 
         return NFA(q, sigma, delta, initial_state, f)
 
-    def get_e_closure(self, q: str, visited: list[str] | None = None) -> list[str]:
+    def _get_e_closure(self, q: str, visited: list[str] | None = None) -> list[str]:
         """
         Returns a list of the epsilon closures from estate q.
 
@@ -256,9 +281,28 @@ class NFA:
                     if st not in visited:
                         visited.append(st)
                         ans.extend(
-                            [k for k in self.get_e_closure(st, visited) if k not in ans]
+                            [
+                                k
+                                for k in self._get_e_closure(st, visited)
+                                if k not in ans
+                            ]
                         )
         return ans
+
+    def _get_new_delta_real_value(
+        self, delta: dict[str, dict[str, set[str]]], real_value: dict[str, str]
+    ) -> dict[str, dict[str, set[str]]]:
+        new_delta = dict()
+        for q, transition in delta.items():
+            tmp_dict = dict()
+            for s, states in transition.items():
+                tmp_states = []
+                for state in states:
+                    tmp_states.append(real_value[state])
+
+                tmp_dict[s] = set(tmp_states.copy())
+            new_delta[real_value[q]] = tmp_dict.copy()
+        return new_delta
 
     def contains_epsilon_transitions(self) -> bool:
         """Returns True if the NFA contains Epsilon transitions.
@@ -297,7 +341,7 @@ class NFA:
         if self.contains_epsilon_transitions():
             delta_prime = dict()
             for q in q_prime:
-                closure_states = self.get_e_closure(q)
+                closure_states = self._get_e_closure(q)
 
                 for sigma in self.sigma:
                     to_epsilon_closure = list()
@@ -315,7 +359,7 @@ class NFA:
 
                     # Get the new transitions from the epsilon closure
                     for epsilon_closure in to_epsilon_closure:
-                        new_transitions.extend(self.get_e_closure(epsilon_closure))
+                        new_transitions.extend(self._get_e_closure(epsilon_closure))
 
                     if q not in delta_prime:
                         delta_prime[q] = dict()
@@ -470,8 +514,8 @@ class NFA:
             f.add(real_value_m[_q])
 
         # Replace the values
-        self_delta = _get_new_delta_real_value(self.delta, real_value_self)
-        m_delta = _get_new_delta_real_value(m.delta, real_value_m)
+        self_delta = self._get_new_delta_real_value(self.delta, real_value_self)
+        m_delta = self._get_new_delta_real_value(m.delta, real_value_m)
 
         delta = {
             **self_delta,
