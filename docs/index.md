@@ -15,7 +15,7 @@
 
 ---
 
-**Documentation**: <a href="https://automathon.rohaquinlop.com" target="_blank">https://automathon.rohaquinlop.com</a>
+**Documentation**: <a href="https://rohaquinlop.github.io/automathon/" target="_blank">https://rohaquinlop.github.io/automathon/</a>
 
 **Source Code**: <a href="https://github.com/rohaquinlop/automathon" target="_blank">https://github.com/rohaquinlop/automathon</a>
 
