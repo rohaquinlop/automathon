@@ -1,12 +1,13 @@
 site_name: automathon
 site_description: automathon, a Python library for simulating and visualizing finite automata.
+site_url: https://rohaquinlop.github.io/automathon/
+repo_name: rohaquinlop/automathon
+repo_url: https://github.com/rohaquinlop/automathon
+edit_uri: ""
 
 theme:
   name: material
   features:
-    - navigation.tabs
-    - navigation.sections
-    - toc.integrate
     - navigation.top
     - search.suggest
     - search.highlight
@@ -15,24 +16,12 @@ theme:
     - content.code.copy
   language: en
   palette:
-    - scheme: default
-      toggle:
-        icon: material/toggle-switch-off-outline
-        name: Switch to Dark Mode
-      primary: teal
-      accent: purple
-    - scheme: slate
-      toggle:
-        icon: material/toggle-switch
-        name: Switch to Light Mode
-      primary: teal
-      accent: lime
+    primary: teal
   icon:
     repo: fontawesome/brands/github-alt
+  logo: img/icon.svg
+  favicon: img/icon.svg
 
-repo_name: rohaquinlop/automathon
-repo_url: https://github.com/rohaquinlop/automathon
-edit_uri: ""
 
 extra:
   social:
@@ -54,6 +43,7 @@ markdown_extensions:
   - footnotes
   - pymdownx.mark
   - attr_list
+  - pymdownx.extra
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
