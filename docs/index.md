@@ -90,8 +90,8 @@ exception with the error message.
 Errors that the library can raise are:
 
 - **SigmaError**:
-  - The automata contain an initial state, or a final state that's not defined on Q.
-  - The automata contain a delta transition that's not defined on Q or in Sigma.
+  - The automata contain an initial state, or a final state that's not defined in Q.
+  - The automata contain a delta transition that's not defined in Q nor Sigma.
 
 - **InputError**:
   - The automata is trying to consume a letter that's not defined in sigma.
