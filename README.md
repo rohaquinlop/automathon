@@ -1,383 +1,93 @@
-# Automathon
+# automathon
 
-Created by: Robin Hafid Quintero Lopez
+<p align="center">
+    <a href="https://rohaquinlop.github.io/automathon/"><img src="docs/img/logo-vector.svg" alt="automathon"></a>
+</p>
 
-[![Main Workflow](https://github.com/rohaquinlop/automathon/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/rohaquinlop/automathon)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=rohaquinlop_automathon&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=rohaquinlop_automathon)
+<p align="center">
+    <em>A Python library for simulating and visualizing finite automata.</em>
+</p>
 
-A Python library for simulating and visualizing finite automata.
+<p align="center">
+    <a href="https://github.com/rohaquinlop/automathon" target="_blank">
+        <img src="https://github.com/rohaquinlop/automathon/actions/workflows/main.yml/badge.svg?branch=main" alt="Test">
+    </a>
+    <a href="https://sonarcloud.io/summary/new_code?id=rohaquinlop_automathon" target="_blank">
+        <img src="https://sonarcloud.io/api/project_badges/measure?project=rohaquinlop_automathon&metric=alert_status" alt="Quality Gate">
+    </a>
+    <a href="https://pypi.org/project/automathon" target="_blank">
+    <img src="https://img.shields.io/pypi/v/automathon?color=%2334D058&label=pypi%20package" alt="Package version">
+</a>
+</p>
 
-## Links
-- GitHub repository: https://github.com/rohaquinlop/automathon
-- PyPI: https://pypi.org/project/automathon/
-- Twitter: https://twitter.com/RobinHafid
-- Contact: rohaquinlop301@gmail.com
+---
+
+**Documentation**: <a href="https://rohaquinlop.github.io/automathon/" target="_blank">https://rohaquinlop.github.io/automathon/</a>
+
+**Source Code**: <a href="https://github.com/rohaquinlop/automathon" target="_blank">https://github.com/rohaquinlop/automathon</a>
+
+**PyPI**: <a href="https://pypi.org/project/automathon/" target="_blank">https://pypi.org/project/automathon/</a>
+
+---
+
+## Requirements
+
+- Python >= 3.10
+- You also need to install Graphviz on your computer ([download page](https://www.graphviz.org/download/), [installation procedure for Windows](https://forum.graphviz.org/t/new-simplified-installation-procedure-on-windows/224), [archived versions](https://www2.graphviz.org/Archive/stable/)).Make sure that the directory containing the **dot** executable is on your systems’ path.
 
 ## Installation
 
-### PyPI
-```Python
+```bash
 pip install automathon
 ```
 
-You also need to install Graphviz on your computer ([download page](https://www.graphviz.org/download/), [installation procedure for Windows](https://forum.graphviz.org/t/new-simplified-installation-procedure-on-windows/224), [archived versions](https://www2.graphviz.org/Archive/stable/)).
+### Upgrade
 
-Make sure that the directory containing the **dot** executable is on your systems’ path.
-
-## Upgrade
-
-### PyPI
-```Python
+```bash
 pip install automathon --upgrade
 ```
 
-## Deterministic Finite Automata
+## Example
+
+Here is are some examples about what you can do with **automathon**, you can
+check the documentation about [Deterministic Finite Automata](dfa.md) and
+[Non-Deterministic Finite Automata](nfa.md) to know more about the functions and
+methods that are available.
+
+### DFA - Deterministic Finite Automata
 
 ![DFA Visualization](https://github.com/rohaquinlop/automathon/assets/50106623/81efada9-3c68-4611-bb5c-53dcaf7987f1)
 
-### Representing the previous automata
+This image was created using **automathon**.
 
-```Python
+Let's create the previous automata using the library:
+
+```python
 from automathon import DFA
-Q = {'q0', 'q1', 'q2'}
+q = {'q0', 'q1', 'q2'}
 sigma = {'0', '1'}
 delta = { 'q0' : {'0' : 'q0', '1' : 'q1'},
           'q1' : {'0' : 'q2', '1' : 'q0'},
           'q2' : {'0' : 'q1', '1' : 'q2'}
         }
-initialState = 'q0'
-F = {'q0'}
+initial_state = 'q0'
+f = {'q0'}
 
-automata1 = DFA(Q, sigma, delta, initialState, F)
-## This is an example about creating a DFA with the library
+automata = DFA(q, sigma, delta, initial_state, f)
 ```
 
-### Verify if the automata is valid
+#### Verify if the automata is valid
 
 ```python
-automata1.is_valid()  # True
+automata.is_valid()    # True
 ```
 
-### Verify if the automata accept a string
+In this case, the automata is valid but if it wasn't, the library would raise an
+exception with the error message.
 
-```python
-automata1.accept("001001")   #True
-automata1.accept("00100")    #False
-```
+#### Errors
 
-### Get the automata's complement
-
-```python
-notautomata1 = automata1.complement()
-notautomata1.accept("00100")    #True
-```
-
-### Visualize the automata
-
-For both, DFA and NFA, the view method enables to visualize the automaton, receives as parameter a String as the file name for the png and svg files.
-
-More information about the graphviz attributes [here](https://www.graphviz.org/doc/info/attrs.html).
-
-![DFA Visualization](https://github.com/rohaquinlop/automathon/assets/50106623/81efada9-3c68-4611-bb5c-53dcaf7987f1)
-```Python
-automata1.view("DFA Visualization")
-
-# Add custom styling
-
-automata1.view(file_name="DFA Custom Styling",
-               node_attr={'fontsize': '20'},
-               edge_attr={'fontsize': '20pt'})
-```
-
-### Convert DFA to NFA
-
-If you need to use a DFA and operate with a NFA you can convert your DFA to NFA class, using the function **getNFA**. **getNFA** convert your DFA to NFA class and returns its conversion.
-
-```python
-automata1NFA = automata1.get_nfa()
-automata1NFA.view("DFA to NFA")
-```
-
-### Product of two automatas
-The **product** function receives a DFA and  returns the product of two DFAs, your actual DFA and the given as parameter.
-
-```python
-Q = {'A', 'B'}
-sigma = {'0', '1'}
-delta = {
-  'A': {
-    '0': 'A',
-    '1': 'B'
-  },
-  'B': {
-    '0': 'B',
-    '1': 'A'
-  }
-}
-initialState = 'A'
-F = {'B'}
-dfa = DFA(Q, sigma, delta, initialState, F)
-
-Q1 = {'R', 'S', 'T', 'U'}
-sigma1 = {'0', '1'}
-delta1 = {
-  'R': {
-    '0': 'S',
-    '1': 'R'
-  },
-  'S': {
-    '0': 'T',
-    '1': 'R'
-  },
-  'T': {
-    '0': 'U',
-    '1': 'R'
-  },
-  'U': {
-    '0': 'U',
-    '1': 'U'
-  }
-}
-initialState1 = 'R'
-F1 = {'U'}
-
-dfa1 = DFA(Q1, sigma1, delta1, initialState1, F1)
-
-dfa2 = dfa.product(dfa1)
-
-assert dfa2.is_valid() == True
-assert dfa2.accept("0001") == True
-assert dfa2.accept("00010010") == False
-```
-
-### Union of two automatas
-The **union** function receives a DFA and returns the union of two DFAs, your actual DFA and the given as parameter.
-
-```python
-Q = {'A', 'B'}
-sigma = {'0', '1'}
-delta = {
-  'A': {
-    '0': 'A',
-    '1': 'B'
-  },
-  'B': {
-    '0': 'B',
-    '1': 'A'
-  }
-}
-initialState = 'A'
-F = {'B'}
-dfa = DFA(Q, sigma, delta, initialState, F)
-
-Q1 = {'R', 'S', 'T', 'U'}
-sigma1 = {'0', '1'}
-delta1 = {
-  'R': {
-    '0': 'S',
-    '1': 'R'
-  },
-  'S': {
-    '0': 'T',
-    '1': 'R'
-  },
-  'T': {
-    '0': 'U',
-    '1': 'R'
-  },
-  'U': {
-    '0': 'U',
-    '1': 'U'
-  }
-}
-initialState1 = 'R'
-F1 = {'U'}
-
-dfa1 = DFA(Q1, sigma1, delta1, initialState1, F1)
-
-dfa2 = dfa.union(dfa1)
-
-assert dfa2.accept("00010010") == True
-assert dfa2.accept("0011000") == True
-assert dfa.is_valid() == True
-```
-
-## Non-Deterministic Finite Automata
-![](http://www.r9paul.org/wp-content/uploads/2008/12/nfa_example.jpg)
-
-Image taken from: http://www.r9paul.org/blog/2008/nondeterministic-finite-state-machine/
-
-### Representing the previous automata
-
-```Python
-from automathon import NFA
-
-## Epsilon Transition is denoted by '' -> Empty string
-Q = {'q1', 'q2', 'q3', 'q4'}
-sigma = {'0', '1'}
-delta = {
-          'q1' : {
-                  '0' : {'q1'},
-                  '1' : {'q1', 'q2'}
-                  },
-          'q2' : {
-                  '0' : {'q3'},
-                  '' : {'q3'}
-                  },
-          'q3' : {
-                  '1' : {'q4'},
-                  },
-          'q4' : {
-                  '0' : {'q4'},
-                  '1' : {'q4'},
-                  },
-        }
-initialState = 'q1'
-F = {'q4'}
-
-automata2 = NFA(Q, sigma, delta, initialState, F)
-## This is an example about creating a NFA with the library
-```
-
-### Verify if the automata is valid
-
-```python
-automata2.is_valid()  # True
-```
-
-### Verify if the automata accept a string
-
-```python
-automata2.accept("0000011")   #True
-automata2.accept("000001")    #False
-```
-
-### Get the automata's complement
-
-```python
-notautomata2 = automata1.complement()
-notautomata2.accept("000001")    #True
-```
-
-### Visualize the automata
-
-![NFA Visualization](https://github.com/rohaquinlop/automathon/assets/50106623/966f4389-7862-4e5f-a5f4-c007c3a836b4)
-```Python
-automata2.view("NFA Visualization")
-
-# Add custom styling
-
-automata2.view(file_name="NFA Custom Styling",
-               node_attr={'fontsize': '20'},
-               edge_attr={'fontsize': '20pt'})
-```
-
-### Remove Epsilon transitions from NFA
-
-```python
-automata3 = automata2.remove_epsilon_transitions()
-automata3.view("NFA without EpsilonTransitions")
-```
-
-### Convert NFA to DFA
-
-```python
-automata4 = automata3.get_dfa()
-automata4.view("NFA to DFA")
-```
-
-### Product of two automatas
-The **product** function receives a NFA and returns the product of two NFAs, your actual NFA and the given as parameter.
-
-```python
-Q = {'A', 'B'}
-sigma = {'a', 'b'}
-delta = {
-  'A': {
-    'a': {'B'},
-    'b': {'A'}
-  },
-  'B': {
-    'a': {'A'},
-    'b': {'B'}
-  }
-}
-initialState = 'A'
-F = {'A'}
-
-nfa = NFA(Q, sigma, delta, initialState, F)
-
-Q1 = {'C', 'D'}
-sigma1 = {'a', 'b'}
-delta1 = {
-  'C': {
-    'a': {'C'},
-    'b': {'D'}
-  },
-  'D': {
-    'a': {'D'},
-    'b': {'C'}
-  }
-}
-initialState1 = 'C'
-F1 = {'C'}
-
-nfa1 = NFA(Q1, sigma1, delta1, initialState1, F1)
-
-nfa2 = nfa.product(nfa1)
-
-assert nfa2.is_valid() == True
-assert nfa2.accept('') == True
-assert nfa2.accept('bb') == True
-assert nfa2.accept('b') == False
-assert nfa2.accept('bbaa') == True
-assert nfa2.accept('bbaaa') == False
-```
-
-### Union of two automatas
-The **union** function receives a NFA and returns the union of two NFAs, your actual NFA and the given as parameter.
-
-```python
-Q = {'A'}
-sigma = {'a'}
-delta = {
-  'A': {
-    'a': {'A'}
-  }
-}
-initialState = 'A'
-F = {'A'}
-nfa = NFA(Q, sigma, delta, initialState, F)
-
-Q1 = {'C', 'D', 'E'}
-sigma1 = {'a', 'b'}
-delta1 = {
-  'C': {
-    'b': {'D'},
-  },
-  'D': {
-    'a': {'E'},
-    'b': {'D'}
-  }
-}
-
-initialState1 = 'C'
-F1 = {'E'}
-
-nfa1 = NFA(Q1, sigma1, delta1, initialState1, F1)
-
-nfa2 = nfa.union(nfa1)
-
-assert nfa2.is_valid() == True
-assert nfa2.accept("aaaaaa") == True
-assert nfa2.accept("aaaabbbbaaa") == False
-assert nfa2.accept("bbbbbbbbba") == True
-assert nfa2.accept("aaaaaaaab") == False
-```
-
-## Errors
-
-Errors that can be returned during the execution, and the cases that can appear.
+Errors that the library can raise are:
 
 - **SigmaError**:
   - The automata contain an initial state, or a final state that's not defined on Q.
@@ -385,3 +95,121 @@ Errors that can be returned during the execution, and the cases that can appear.
 
 - **InputError**:
   - The automata is trying to consume a letter that's not defined in sigma.
+
+#### Verify if the automata accept a given string
+
+```python
+automata.accept("001001")  # True
+automata.accept("00100")   # False
+```
+
+#### Get the automata's complement
+
+```python
+not_automata = automata.complement()
+not_automata.accept("00100")    #True
+```
+
+Note that this function returns a new automata, it doesn't modify the original
+one.
+
+#### Visualize the automata
+
+For both, [DFA](dfa.md) and [NFA](nfa.md), the view method enables to visualize the automaton, receives as parameter a String as the file name for the png and svg files.
+
+More information about the graphviz attributes [here](https://www.graphviz.org/doc/info/attrs.html).
+
+![DFA Visualization](https://github.com/rohaquinlop/automathon/assets/50106623/81efada9-3c68-4611-bb5c-53dcaf7987f1)
+```python
+# Default styling
+automata.view("DFA Visualization")
+
+# If you want to add custom styling, you can use the following
+
+automata.view(
+    file_name="DFA Custom Styling",
+    node_attr={'fontsize': '20'},
+    edge_attr={'fontsize': '20pt'}
+)
+```
+
+If you want to explore more about the functions and methods of the DFA class,
+you can check the [DFA documentation](dfa.md). And if you want to know more about
+the NFA class, you can check the [NFA documentation](nfa.md).
+
+### NFA - Non-Deterministic Finite Automata
+
+![](http://www.r9paul.org/wp-content/uploads/2008/12/nfa_example.jpg)
+
+Image taken from: [r9paul.org](http://www.r9paul.org/blog/2008/nondeterministic-finite-state-machine/)
+
+#### Representing the previous automata
+
+```python
+from automathon import NFA
+
+## Epsilon Transition is denoted by '' -> Empty string
+q = {'q1', 'q2', 'q3', 'q4'}
+sigma = {'0', '1'}
+delta = {
+    'q1' : {
+            '0' : {'q1'},
+            '1' : {'q1', 'q2'}
+            },
+    'q2' : {
+            '0' : {'q3'},
+            '' : {'q3'}
+            },
+    'q3' : {
+            '1' : {'q4'},
+            },
+    'q4' : {
+            '0' : {'q4'},
+            '1' : {'q4'},
+            },
+}
+initial_state = 'q1'
+f = {'q4'}
+
+automata = NFA(q, sigma, delta, initial_state, f)
+```
+
+#### Verify if the automata is valid
+
+```python
+automata.is_valid()  # True
+```
+
+#### Verify if the automata accept a string
+
+```python
+automata.accept("0000011")   #True
+automata.accept("000001")    #False
+```
+
+#### Get the automata's complement
+
+```python
+not_automata = automata.complement()
+not_automata.accept("000001")    #True
+```
+
+#### Visualize the automata
+
+![NFA Visualization](https://github.com/rohaquinlop/automathon/assets/50106623/966f4389-7862-4e5f-a5f4-c007c3a836b4)
+```python
+# Default styling
+automata.view("NFA Visualization")
+
+# If you want to add custom styling, you can use the following
+
+automata.view(
+    file_name="NFA Custom Styling",
+    node_attr={'fontsize': '20'},
+    edge_attr={'fontsize': '20pt'}
+)
+```
+
+## License
+
+This project is licensed under the terms of the MIT license.
