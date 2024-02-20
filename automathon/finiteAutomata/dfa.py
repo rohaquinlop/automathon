@@ -4,7 +4,6 @@ from __future__ import (
 )
 
 from automathon.errors.errors import (
-    InputError,
     SigmaError,
 )
 from collections import (
@@ -96,33 +95,25 @@ class DFA:
 
         # Basic Idea: Search through states (delta) in the DFA, since the initial state to the final states
 
-        ans = False  # Flag
-
         if string == "":
-            ans = True
-        else:
-            q = (
-                deque()
-            )  # queue -> states from i to last character in S | (index, state)
-            q.append([0, self.initial_state])  # Starts from 0
+            return True
 
-            while q and not ans:
-                idx, state = q.popleft()
+        q = deque()  # queue -> states from i to last character in S | (index, state)
+        q.append([0, self.initial_state])  # Starts from 0
 
-                if idx == len(string) and state in self.f:
-                    ans = True
-                elif idx < len(string):
-                    if string[idx] not in self.sigma:
-                        raise InputError(string[idx], "Is not declared in sigma")
+        while q:
+            idx, state = q.popleft()
 
-                    if state in self.delta:
-                        # Search through states
-                        for transition in self.delta[state].items():
-                            # transition: ('1', 'q0')
-                            if string[idx] == transition[0]:
-                                q.append([idx + 1, transition[1]])
+            if idx == len(string) and state in self.f:
+                return True
+            if idx < len(string) and state in self.delta:
+                # Search through states
+                for transition in self.delta[state].items():
+                    # transition: ('1', 'q0')
+                    if string[idx] == transition[0]:
+                        q.append([idx + 1, transition[1]])
 
-        return ans
+        return False
 
     def is_valid(self) -> bool:
         """Returns True if the DFA is a valid automata"""
@@ -195,31 +186,67 @@ class DFA:
             # i : str, j : dict(sigma, Q)
             for state_m, transition_m in m.delta.items():
                 # stateM : str, transitionM : dict(sigma, Q)
-                for s in transition:
-                    if s in transition_m:
-                        # sigma value in common
-                        sigma.add(s)
-
-                        tmp = str([state, state_m])
-                        tmp1 = str([transition[s], transition_m[s]])
-                        aux = dict()
-                        aux[s] = tmp1
-
-                        q.add(tmp)
-                        q.add(tmp1)
-
-                        if state in self.f and state_m in m.f:
-                            f.add(tmp)
-
-                        if transition[s] in self.f and transition_m[s] in m.f:
-                            f.add(tmp1)
-
-                        if tmp in delta:
-                            delta[tmp].update(aux)
-                        else:
-                            delta[tmp] = aux
+                sigma, q, f, delta = self._process_states(
+                    state, state_m, transition, transition_m, sigma, q, f, m.f, delta
+                )
 
         return DFA(q, sigma, delta, str([self.initial_state, m.initial_state]), f)
+
+    def _process_states(
+        self,
+        state: str,
+        state_m: str,
+        transition: dict[str, str],
+        transition_m: dict[str, str],
+        sigma: set[str],
+        q: set[str],
+        f: set[str],
+        f_m: set[str],
+        delta: dict[str, dict[str, str]],
+    ) -> tuple[set[str], set[str], set[str], dict[str, dict[str, str]]]:
+        for s in transition:
+            if s in transition_m:
+                sigma, q, f, delta = self._process_transitions(
+                    state, state_m, s, transition, transition_m, sigma, q, f, f_m, delta
+                )
+        return sigma, q, f, delta
+
+    def _process_transitions(
+        self,
+        state: str,
+        state_m: str,
+        s: str,
+        transition: dict[str, str],
+        transition_m: dict[str, str],
+        sigma: set[str],
+        q: set[str],
+        f: set[str],
+        f_m: set[str],
+        delta: dict[str, dict[str, str]],
+    ) -> tuple[set[str], set[str], set[str], dict[str, dict[str, str]]]:
+        # sigma value in common
+        sigma.add(s)
+
+        tmp = str([state, state_m])
+        tmp1 = str([transition[s], transition_m[s]])
+        aux = dict()
+        aux[s] = tmp1
+
+        q.add(tmp)
+        q.add(tmp1)
+
+        if state in self.f and state_m in f_m:
+            f.add(tmp)
+
+        if transition[s] in self.f and transition_m[s] in f_m:
+            f.add(tmp1)
+
+        if tmp in delta:
+            delta[tmp].update(aux)
+        else:
+            delta[tmp] = aux
+
+        return sigma, q, f, delta
 
     def union(self, m: "DFA") -> "DFA":
         """Given a DFA  returns the union automaton"""
