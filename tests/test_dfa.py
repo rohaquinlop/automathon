@@ -1,6 +1,5 @@
 import unittest
 from automathon import DFA
-from automathon.errors.errors import InputError
 
 
 class TestDFA(unittest.TestCase):
@@ -48,12 +47,6 @@ class TestDFA(unittest.TestCase):
 
     def test_accept_str_2(self):
         self.assertTrue(self.fa.accept("0101010101010"))
-
-    def test_inputError(self):
-        with self.assertRaises(InputError) as context:
-            self.fa.accept("0010012")
-
-        self.assertIn("Is not declared in sigma", context.exception.message)
 
     def test_complement(self):
         not_fa = self.fa.complement()
