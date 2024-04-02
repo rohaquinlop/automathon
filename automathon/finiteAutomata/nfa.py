@@ -196,39 +196,61 @@ class NFA:
         Returns
         - - - - - - - - - - - - - - - - - -
         bool
-            True if the NFA is valid, False otherwise.
+            True if the NFA is valid, Raises an exception otherwise.
         """
-        ans = True
-        not_declared_state = None
+        undeclared_states: set[str] | list[str] = set()
 
         # Validate if the initial state is in the set Q
         if self.initial_state not in self.q:
-            not_declared_state = self.initial_state
+            undeclared_states.add(self.initial_state)
 
-        # Validate if the delta transitions are in the set Q
-        for d in self.delta:
-            if not_declared_state is not None:
-                break
+        undeclared_origin_states = set(
+            filter(lambda x: x != "" and x not in self.q, self.delta.keys())
+        )
 
-            if d != "" and d not in self.q:
-                not_declared_state = d
+        undeclared_sigma = list(
+            set(
+                filter(
+                    lambda s: s != "" and s not in self.sigma,
+                    [s for d in self.delta for s in self.delta[d]],
+                )
+            )
+        )
 
-            # Validate if the d transitions are valid
-            for s in self.delta[d]:
-                if s != "" and s not in self.sigma:
-                    not_declared_state = s
-                for q in self.delta[d][s]:
-                    if q not in self.q:
-                        not_declared_state = self.delta[d][s]
+        undeclared_destination_states = set(
+            filter(
+                lambda q: q not in self.q,
+                [
+                    q
+                    for d in self.delta
+                    for destination_set in self.delta[d].values()
+                    for q in destination_set
+                ],
+            )
+        )
 
-        # Validate if the final state are in Q
-        for f in self.f:
-            if f not in self.q:
-                not_declared_state = f
+        undeclared_final_states = set(filter(lambda f: f not in self.q, self.f))
 
-        if not_declared_state is not None:
-            raise SigmaError(not_declared_state, "Is not declared in Q")
-        return ans
+        undeclared_states = list(
+            undeclared_states
+            | undeclared_origin_states
+            | undeclared_destination_states
+            | undeclared_final_states
+        )
+
+        if undeclared_states:
+            raise SigmaError(
+                undeclared_states,
+                f"{'are' if len(undeclared_states) > 1 else 'is'} not declared in Q",
+            )
+
+        if undeclared_sigma:
+            raise SigmaError(
+                undeclared_sigma,
+                f"{'are' if len(undeclared_sigma) > 1 else 'is'} not declared in sigma",
+            )
+
+        return True
 
     def complement(self) -> "NFA":
         """
@@ -275,18 +297,13 @@ class NFA:
         if visited is None:
             visited = list(q)
 
-        if q in self.delta:
-            if "" in self.delta[q]:
-                for st in self.delta[q][""]:
-                    if st not in visited:
-                        visited.append(st)
-                        ans.extend(
-                            [
-                                k
-                                for k in self._get_e_closure(st, visited)
-                                if k not in ans
-                            ]
-                        )
+        if q in self.delta and "" in self.delta[q]:
+            for st in self.delta[q][""]:
+                if st not in visited:
+                    visited.append(st)
+                    ans.extend(
+                        [k for k in self._get_e_closure(st, visited) if k not in ans]
+                    )
         return ans
 
     def _get_new_delta_real_value(
