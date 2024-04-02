@@ -140,6 +140,11 @@ class NFA:
             True if the string is accepted by the NFA, False otherwise.
         """
 
+        def _add_pairs_to_queue(q, pairs):
+            for pair in pairs:
+                for state in pair:
+                    q.append(state)
+
         # Basic Idea: Search through states (delta) in the NFA, since the initial state to the final states
 
         # BFS states
@@ -153,26 +158,35 @@ class NFA:
             idx = front_q[0]
             state = front_q[1]
 
-            if idx == len(string):
-                if state in self.f:
-                    ans = True
-            elif string[idx] not in self.sigma:
+            if idx == len(string) and state in self.f:
+                ans = True
+            elif idx < len(string) and string[idx] not in self.sigma:
                 raise InputError(string[idx], "Is not declared in sigma")
-            elif state in self.delta:
+            elif idx < len(string) and state in self.delta:
                 # Search through states
-                for transition in self.delta[state].items():
-                    d = transition[0]
-                    states = transition[1]
+                epsilon_transitions = filter(
+                    lambda x: x[0] == "", self.delta[state].items()
+                )
+                epsilon_pairs = map(
+                    lambda transition, idx=idx: map(
+                        lambda state: [idx, state], transition[1]
+                    ),
+                    epsilon_transitions,
+                )
+                # Add epsilon transitions to the queue
+                _add_pairs_to_queue(q, epsilon_pairs)
 
-                    if d == "":
-                        # Is epsilon
-                        for state in states:
-                            # Do not consume character
-                            q.append([idx, state])
-                    elif string[idx] == d:
-                        for state in states:
-                            # Consume character
-                            q.append([idx + 1, state])
+                valid_transitions = filter(
+                    lambda x, idx=idx: x[0] == string[idx], self.delta[state].items()
+                )
+                valid_pairs = map(
+                    lambda transition, idx=idx: map(
+                        lambda state, idx=idx: [idx + 1, state], transition[1]
+                    ),
+                    valid_transitions,
+                )
+                # Add valid transitions to the queue
+                _add_pairs_to_queue(q, valid_pairs)
 
         if string == "":
             ans = True
