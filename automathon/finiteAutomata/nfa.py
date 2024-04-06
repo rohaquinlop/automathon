@@ -320,21 +320,6 @@ class NFA:
                     )
         return ans
 
-    def _get_new_delta_real_value(
-        self, delta: dict[str, dict[str, set[str]]], real_value: dict[str, str]
-    ) -> dict[str, dict[str, set[str]]]:
-        new_delta = dict()
-        for q, transition in delta.items():
-            tmp_dict = dict()
-            for s, states in transition.items():
-                tmp_states = []
-                for state in states:
-                    tmp_states.append(real_value[state])
-
-                tmp_dict[s] = set(tmp_states.copy())
-            new_delta[real_value[q]] = tmp_dict.copy()
-        return new_delta
-
     def contains_epsilon_transitions(self) -> bool:
         """Returns True if the NFA contains Epsilon transitions.
 
@@ -369,36 +354,51 @@ class NFA:
         delta_init_state = self.initial_state
         delta_f = self.f.copy()
 
-        if self.contains_epsilon_transitions():
-            delta_prime = dict()
-            for q in q_prime:
-                closure_states = self._get_e_closure(q)
+        if not self.contains_epsilon_transitions():
+            return NFA(q_prime, self.sigma, delta_prime, delta_init_state, delta_f)
 
-                for sigma in self.sigma:
-                    to_epsilon_closure = list()
-                    new_transitions = list()
+        delta_prime = dict()
+        for q in q_prime:
+            closure_states = self._get_e_closure(q)
 
-                    # Get the transitions from sigma in each epsilon closure
-                    for closure_state in closure_states:
-                        if closure_state in self.f:
-                            delta_f.add(q)
-                        if (
-                            closure_state in self.delta
-                            and sigma in self.delta[closure_state]
-                        ):
-                            to_epsilon_closure.extend(self.delta[closure_state][sigma])
-
-                    # Get the new transitions from the epsilon closure
-                    for epsilon_closure in to_epsilon_closure:
-                        new_transitions.extend(self._get_e_closure(epsilon_closure))
-
-                    if q not in delta_prime:
-                        delta_prime[q] = dict()
-
-                    if sigma != "":
-                        delta_prime[q][sigma] = set(new_transitions)
+            for sigma in self.sigma:
+                new_transitions = self._ret_get_new_transitions(
+                    q, sigma, closure_states, delta_f
+                )
+                self._ret_update_delta(delta_prime, q, sigma, new_transitions)
 
         return NFA(q_prime, self.sigma, delta_prime, delta_init_state, delta_f)
+
+    def _ret_get_new_transitions(
+        self, q: str, sigma: str, closure_states: list[str], delta_f: set[str]
+    ):
+        to_epsilon_closure: list[str] = []
+        new_transitions: list[str] = []
+
+        # Get the transitions from sigma in each epsilon closure
+        for closure_state in closure_states:
+            if closure_state in self.f:
+                delta_f.add(q)
+            if closure_state in self.delta and sigma in self.delta[closure_state]:
+                to_epsilon_closure.extend(self.delta[closure_state][sigma])
+
+        # Get the new transitions from the epsilon closure
+        for epsilon_closure in to_epsilon_closure:
+            new_transitions.extend(self._get_e_closure(epsilon_closure))
+
+        return new_transitions
+
+    def _ret_update_delta(
+        self,
+        delta_prime: dict[str, dict[str, set[str]]],
+        q: str,
+        sigma: str,
+        new_transitions: list[str],
+    ):
+        if q not in delta_prime:
+            delta_prime[q] = dict()
+        if sigma != "":
+            delta_prime[q][sigma] = set(new_transitions)
 
     def get_dfa(self) -> DFA:
         """
@@ -557,6 +557,21 @@ class NFA:
         }
 
         return NFA(q, sigma, delta, initial_state, f)
+
+    def _get_new_delta_real_value(
+        self, delta: dict[str, dict[str, set[str]]], real_value: dict[str, str]
+    ) -> dict[str, dict[str, set[str]]]:
+        new_delta = dict()
+        for q, transition in delta.items():
+            tmp_dict = dict()
+            for s, states in transition.items():
+                tmp_states = []
+                for state in states:
+                    tmp_states.append(real_value[state])
+
+                tmp_dict[s] = set(tmp_states.copy())
+            new_delta[real_value[q]] = tmp_dict.copy()
+        return new_delta
 
     def product(self, m: "NFA") -> "NFA":
         """Given a DFA M returns the product automaton"""
