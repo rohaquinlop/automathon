@@ -418,7 +418,7 @@ class NFA:
         local_nfa = local_nfa.remove_epsilon_transitions()
 
         q_prime = []
-        delta_prime = dict()
+        delta_prime: dict[str, dict[str, str]] = dict()
 
         queue = deque()
         visited = [[local_nfa.initial_state]]
@@ -427,28 +427,18 @@ class NFA:
         while queue:
             qs = queue.pop()  # state Q
 
-            local_transitions = dict()  # {str : list}
+            local_transitions: dict[str, str] | dict[str, list[str]] = (
+                dict()
+            )  # {str : list}
 
-            for q in qs:
-                if q in local_nfa.delta:
-                    for s in local_nfa.delta[q]:
-                        tmp = local_nfa.delta[q][s].copy()
-                        if tmp:
-                            if s in local_transitions:
-                                # avoid add repeated values
-                                local_transitions[s].extend(
-                                    [k for k in tmp if k not in local_transitions[s]]
-                                )
-                            else:
-                                local_transitions[s] = list(tmp)
+            states_in_nfa_delta = filter(lambda q: q in local_nfa.delta, qs)
 
-            for transition in local_transitions:
-                local_transitions[transition].sort()
-                tmp = local_transitions[transition].copy()
-                if tmp not in visited:
-                    queue.append(tmp)
-                    visited.append(tmp)
-                local_transitions[transition] = str(local_transitions[transition])
+            for q in states_in_nfa_delta:
+                for s in local_nfa.delta[q]:
+                    tmp = local_nfa.delta[q][s].copy()
+                    self._extend_local_transitions(tmp, s, local_transitions)
+
+            self._update_local_transitions(local_transitions, visited, queue)
 
             delta_prime[str(qs)] = local_transitions
             q_prime.append(qs)
@@ -475,6 +465,31 @@ class NFA:
             str([local_nfa.initial_state]),
             f_prime,
         )
+
+    def _extend_local_transitions(
+        self, tmp: set[str], s: str, local_transitions: dict[str, list[str]]
+    ) -> None:
+        if tmp and s in local_transitions:
+            # avoid add repeated values
+            local_transitions[s].extend(
+                [k for k in tmp if k not in local_transitions[s]]
+            )
+        elif tmp:
+            local_transitions[s] = list(tmp)
+
+    def _update_local_transitions(
+        self,
+        local_transitions: dict[str, list[str]],
+        visited: list[list[str]],
+        queue: deque,
+    ) -> None:
+        for transition in local_transitions:
+            local_transitions[transition] = sorted(local_transitions[transition])
+            tmp = local_transitions[transition].copy()
+            if tmp not in visited:
+                queue.append(tmp)
+                visited.append(tmp)
+            local_transitions[transition] = str(local_transitions[transition])
 
     def minimize(self) -> "NFA":
         """Minimize the automata and return the NFA result of the minimization"""
