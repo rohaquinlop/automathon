@@ -36,6 +36,22 @@ class TestDFA(unittest.TestCase):
         f={"U"},
     )
 
+    dfa_ab = DFA(
+        q={"1", "2"},
+        sigma={"a", "b"},
+        delta={"1": {"a": "2", "b": "1"}, "2": {"a": "1", "b": "2"}},
+        initial_state="1",
+        f={"1"},
+    )
+
+    dfa_ab_inv = DFA(
+        q={"3", "4"},
+        sigma={"a", "b"},
+        delta={"3": {"a": "3", "b": "4"}, "4": {"a": "4", "b": "3"}},
+        initial_state="3",
+        f={"3"},
+    )
+
     def test_is_valid(self):
         self.assertTrue(self.fa.is_valid())
 
@@ -96,6 +112,28 @@ class TestDFA(unittest.TestCase):
         self.assertTrue(intersection_result.is_valid())
         self.assertTrue(intersection_result.accept("0001"))
         self.assertFalse(intersection_result.accept("00010010"))
+
+    def test_difference(self):
+        difference_result = self.dfa_ab.difference(self.dfa_ab_inv)
+
+        self.assertTrue(difference_result.is_valid())
+        self.assertTrue(difference_result.accept("b"))
+        self.assertTrue(difference_result.accept("aba"))
+        self.assertFalse(difference_result.accept("aa"))
+        self.assertFalse(difference_result.accept("ab"))
+        self.assertFalse(difference_result.accept("abbabb"))
+
+    def test_symmetric_difference(self):
+        symmetric_difference_result = self.dfa_ab.symmetric_difference(
+            self.dfa_ab_inv
+        )
+
+        self.assertTrue(symmetric_difference_result.is_valid())
+        self.assertTrue(symmetric_difference_result.accept("b"))
+        self.assertTrue(symmetric_difference_result.accept("a"))
+        self.assertFalse(symmetric_difference_result.accept("aa"))
+        self.assertFalse(symmetric_difference_result.accept("ab"))
+        self.assertFalse(symmetric_difference_result.accept("abbabb"))
 
 
 if __name__ == "__main__":
