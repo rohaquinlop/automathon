@@ -70,6 +70,15 @@ class DFA:
     union(m: DFA) -> DFA
         Given a DFA m, returns the union automaton.
 
+    intersection(m: DFA) -> DFA
+        Given a DFA m, returns the intersection automaton.
+
+    difference(m: DFA) -> DFA
+        Given a DFA m, returns the difference automaton.
+
+    symmetric_difference(m: DFA) -> DFA
+        Given a DFA m, returns the symmetric difference automaton.
+
     view(
         file_name : str, node_attr : dict[str, str] | None, edge_attr : dict[str, str] | None
     ) -> None
