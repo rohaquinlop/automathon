@@ -2,7 +2,6 @@
 from __future__ import (
     annotations,
 )
-
 from automathon.errors.errors import (
     InputError,
     SigmaError,
@@ -149,7 +148,9 @@ class NFA:
 
         # BFS states
 
-        q = deque()  # queue -> states from i to last character in S | (index, state)
+        q = (
+            deque()
+        )  # queue -> states from i to last character in S | (index, state)
         q.append([0, self.initial_state])  # Starts from 0
         ans = False  # Flag
 
@@ -177,7 +178,8 @@ class NFA:
                 _add_pairs_to_queue(q, epsilon_pairs)
 
                 valid_transitions = filter(
-                    lambda x, idx=idx: x[0] == string[idx], self.delta[state].items()
+                    lambda x, idx=idx: x[0] == string[idx],
+                    self.delta[state].items(),
                 )
                 valid_pairs = map(
                     lambda transition, idx=idx: map(
@@ -291,7 +293,9 @@ class NFA:
 
         return NFA(q, sigma, delta, initial_state, f)
 
-    def _get_e_closure(self, q: str, visited: list[str] | None = None) -> list[str]:
+    def _get_e_closure(
+        self, q: str, visited: list[str] | None = None
+    ) -> list[str]:
         """
         Returns a list of the epsilon closures from estate q.
 
@@ -316,7 +320,11 @@ class NFA:
                 if st not in visited:
                     visited.append(st)
                     ans.extend(
-                        [k for k in self._get_e_closure(st, visited) if k not in ans]
+                        [
+                            k
+                            for k in self._get_e_closure(st, visited)
+                            if k not in ans
+                        ]
                     )
         return ans
 
@@ -355,7 +363,9 @@ class NFA:
         delta_f = self.f.copy()
 
         if not self.contains_epsilon_transitions():
-            return NFA(q_prime, self.sigma, delta_prime, delta_init_state, delta_f)
+            return NFA(
+                q_prime, self.sigma, delta_prime, delta_init_state, delta_f
+            )
 
         delta_prime = dict()
         for q in q_prime:
@@ -379,7 +389,10 @@ class NFA:
         for closure_state in closure_states:
             if closure_state in self.f:
                 delta_f.add(q)
-            if closure_state in self.delta and sigma in self.delta[closure_state]:
+            if (
+                closure_state in self.delta
+                and sigma in self.delta[closure_state]
+            ):
                 to_epsilon_closure.extend(self.delta[closure_state][sigma])
 
         # Get the new transitions from the epsilon closure
@@ -414,7 +427,9 @@ class NFA:
             The DFA equivalent to the NFA.
         """
 
-        local_nfa = NFA(self.q, self.sigma, self.delta, self.initial_state, self.f)
+        local_nfa = NFA(
+            self.q, self.sigma, self.delta, self.initial_state, self.f
+        )
         local_nfa = local_nfa.remove_epsilon_transitions()
 
         q_prime = []
@@ -484,7 +499,9 @@ class NFA:
         queue: deque,
     ) -> None:
         for transition in local_transitions:
-            local_transitions[transition] = sorted(local_transitions[transition])
+            local_transitions[transition] = sorted(
+                local_transitions[transition]
+            )
             tmp = local_transitions[transition].copy()
             if tmp not in visited:
                 queue.append(tmp)
@@ -532,7 +549,12 @@ class NFA:
 
                 delta[new_tags[_q]][s] = set(nxt_states)
 
-        self.q, self.f, self.delta, self.initial_state = q, f, delta, initial_state
+        self.q, self.f, self.delta, self.initial_state = (
+            q,
+            f,
+            delta,
+            initial_state,
+        )
 
     def union(self, m: "NFA") -> "NFA":
         """Given a NFA m returns the union automaton"""
@@ -567,7 +589,10 @@ class NFA:
             **self_delta,
             **m_delta,
             initial_state: {
-                "": {real_value_self[self.initial_state], real_value_m[m.initial_state]}
+                "": {
+                    real_value_self[self.initial_state],
+                    real_value_m[m.initial_state],
+                }
             },
         }
 
@@ -588,6 +613,58 @@ class NFA:
             new_delta[real_value[q]] = tmp_dict.copy()
         return new_delta
 
+    def intersection(self, m: "NFA") -> "NFA":
+        """Given a NFA m returns the intersection automaton"""
+        if self.sigma != m.sigma:
+            raise SigmaError(
+                self.sigma,
+                "The alphabet of the two automata must be the same",
+            )
+
+        new_q_list: list[tuple[str, str]] = []
+
+        initial_state = str((self.initial_state, m.initial_state))
+        delta: dict[str, dict[str, set[str]]] = dict()
+        f: set[str] = set()
+        sigma = self.sigma.copy()
+
+        queue = deque()
+        queue.append((self.initial_state, m.initial_state))
+
+        while queue:
+            a, b = queue.popleft()
+
+            new_q_list.append((a, b))
+
+            if a in self.f and b in m.f:
+                f.add(str((a, b)))
+
+            common_transitions = self.delta[a].keys() & m.delta[b].keys()
+
+            for s in common_transitions:
+                a_next_states = self.delta[a][s].copy()
+                b_next_states = m.delta[b][s].copy()
+
+                next_states: set[str] = {
+                    (x, y) for x in a_next_states for y in b_next_states
+                }
+
+                unexplored_states = set(
+                    filter(lambda x: x not in new_q_list, next_states)
+                )
+
+                new_q_list.extend(unexplored_states)
+
+                for x, y in unexplored_states:
+                    queue.append((x, y))
+
+                if str((a, b)) not in delta:
+                    delta[str((a, b))] = dict()
+
+                delta[str((a, b))][s] = set(map(str, next_states))
+
+        return NFA(set(map(str, new_q_list)), sigma, delta, initial_state, f)
+
     def product(self, m: "NFA") -> "NFA":
         """Given a DFA M returns the product automaton"""
         # Using DFA conversion
@@ -605,7 +682,10 @@ class NFA:
         edge_attr: dict[str, str] | None = None,
     ) -> None:
         dot = Digraph(
-            name=file_name, format="png", node_attr=node_attr, edge_attr=edge_attr
+            name=file_name,
+            format="png",
+            node_attr=node_attr,
+            edge_attr=edge_attr,
         )
 
         dot.graph_attr["rankdir"] = "LR"
