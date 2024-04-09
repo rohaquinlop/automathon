@@ -2,7 +2,6 @@
 from __future__ import (
     annotations,
 )
-
 from automathon.errors.errors import (
     SigmaError,
 )
@@ -14,6 +13,9 @@ from dataclasses import (
 )
 from graphviz import (
     Digraph,
+)
+from typing import (
+    Callable,
 )
 
 
@@ -98,7 +100,9 @@ class DFA:
         if string == "":
             return True
 
-        q = deque()  # queue -> states from i to last character in S | (index, state)
+        q = (
+            deque()
+        )  # queue -> states from i to last character in S | (index, state)
         q.append([0, self.initial_state])  # Starts from 0
 
         while q:
@@ -187,10 +191,20 @@ class DFA:
             for state_m, transition_m in m.delta.items():
                 # stateM : str, transitionM : dict(sigma, Q)
                 sigma, q, f, delta = self._process_states(
-                    state, state_m, transition, transition_m, sigma, q, f, m.f, delta
+                    state,
+                    state_m,
+                    transition,
+                    transition_m,
+                    sigma,
+                    q,
+                    f,
+                    m.f,
+                    delta,
                 )
 
-        return DFA(q, sigma, delta, str([self.initial_state, m.initial_state]), f)
+        return DFA(
+            q, sigma, delta, str([self.initial_state, m.initial_state]), f
+        )
 
     def _process_states(
         self,
@@ -207,7 +221,16 @@ class DFA:
         for s in transition:
             if s in transition_m:
                 sigma, q, f, delta = self._process_transitions(
-                    state, state_m, s, transition, transition_m, sigma, q, f, f_m, delta
+                    state,
+                    state_m,
+                    s,
+                    transition,
+                    transition_m,
+                    sigma,
+                    q,
+                    f,
+                    f_m,
+                    delta,
                 )
         return sigma, q, f, delta
 
@@ -248,12 +271,60 @@ class DFA:
 
         return sigma, q, f, delta
 
+    def _binary_operation(
+        self, m: "DFA", operation: Callable[..., bool]
+    ) -> "DFA":
+        new_q_list: list[tuple[str, str]] = []
+
+        initial_state = str((self.initial_state, m.initial_state))
+        delta: dict[str, dict[str, str]] = dict()
+        sigma: set[str] = self.sigma.copy()
+        f: set[str] = set()
+
+        # Check if both sigmas are the same
+        if self.sigma != m.sigma:
+            raise SigmaError(
+                self.sigma, "Sigma from both DFAs must be the same"
+            )
+
+        queue = deque()
+        queue.append((self.initial_state, m.initial_state))
+
+        while queue:
+            a, b = queue.popleft()
+
+            new_q_list.append((a, b))
+
+            if operation(a, self.f, b, m.f):
+                f.add(str((a, b)))
+
+            common_transitions = self.delta[a].keys() & m.delta[b].keys()
+
+            for s in common_transitions:
+                new_q = (self.delta[a][s], m.delta[b][s])
+
+                if new_q not in new_q_list:
+                    queue.append(new_q)
+                    new_q_list.append(new_q)
+
+                if str((a, b)) in delta:
+                    delta[str((a, b))][s] = str(new_q)
+                else:
+                    delta[str((a, b))] = {s: str(new_q)}
+
+        return DFA(set(map(str, new_q_list)), sigma, delta, initial_state, f)
+
     def union(self, m: "DFA") -> "DFA":
         """Given a DFA  returns the union automaton"""
-        tmp_nfa = self.get_nfa()
-        tmp_nfa = tmp_nfa.union(m.get_nfa()).remove_epsilon_transitions()
+        return self._binary_operation(
+            m, lambda a, f, b, f_m: a in f or b in f_m
+        )
 
-        return tmp_nfa.get_dfa()
+    def intersection(self, m: "DFA") -> "DFA":
+        """Given a DFA  returns the intersection automaton"""
+        return self._binary_operation(
+            m, lambda a, f, b, f_m: a in f and b in f_m
+        )
 
     def view(
         self,
@@ -262,7 +333,10 @@ class DFA:
         edge_attr: dict[str, str] | None = None,
     ) -> None:
         dot = Digraph(
-            name=file_name, format="png", node_attr=node_attr, edge_attr=edge_attr
+            name=file_name,
+            format="png",
+            node_attr=node_attr,
+            edge_attr=edge_attr,
         )
 
         dot.graph_attr["rankdir"] = "LR"

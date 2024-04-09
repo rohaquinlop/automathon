@@ -90,6 +90,13 @@ class TestDFA(unittest.TestCase):
         self.assertTrue(union_result.accept("00010010"))
         self.assertTrue(union_result.accept("0011000"))
 
+    def test_intersection(self):
+        intersection_result = self.dfa.intersection(self.dfa_1)
+
+        self.assertTrue(intersection_result.is_valid())
+        self.assertTrue(intersection_result.accept("0001"))
+        self.assertFalse(intersection_result.accept("00010010"))
+
 
 if __name__ == "__main__":
     unittest.main()
