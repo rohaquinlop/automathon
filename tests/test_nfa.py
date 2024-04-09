@@ -66,7 +66,10 @@ class TestNFA(unittest.TestCase):
         nfa = NFA(
             q={"A", "B"},
             sigma={"a", "b"},
-            delta={"A": {"a": {"B"}, "b": {"A"}}, "B": {"a": {"A"}, "b": {"B"}}},
+            delta={
+                "A": {"a": {"B"}, "b": {"A"}},
+                "B": {"a": {"A"}, "b": {"B"}},
+            },
             initial_state="A",
             f={"A"},
         )
@@ -74,7 +77,10 @@ class TestNFA(unittest.TestCase):
         nfa_1 = NFA(
             q={"C", "D"},
             sigma={"a", "b"},
-            delta={"C": {"a": {"C"}, "b": {"D"}}, "D": {"a": {"D"}, "b": {"C"}}},
+            delta={
+                "C": {"a": {"C"}, "b": {"D"}},
+                "D": {"a": {"D"}, "b": {"C"}},
+            },
             initial_state="C",
             f={"C"},
         )
@@ -90,7 +96,11 @@ class TestNFA(unittest.TestCase):
 
     def test_union(self):
         nfa = NFA(
-            q={"A"}, sigma={"a"}, delta={"A": {"a": {"A"}}}, initial_state="A", f={"A"}
+            q={"A"},
+            sigma={"a"},
+            delta={"A": {"a": {"A"}}},
+            initial_state="A",
+            f={"A"},
         )
 
         nfa_1 = NFA(
@@ -114,13 +124,70 @@ class TestNFA(unittest.TestCase):
         self.assertFalse(union_result.accept("aaaabbbbaaa"))
         self.assertFalse(union_result.accept("aaaaaaaab"))
 
+    def test_intersection(self):
+        nfa = NFA(
+            q={"q1", "q2", "q3", "q4", "q5"},
+            sigma={"a", "b"},
+            delta={
+                "q1": {
+                    "a": {"q2", "q1"},
+                    "b": {"q1"},
+                },
+                "q2": {"a": {"q3"}},
+                "q3": {
+                    "a": {"q3", "q4"},
+                    "b": {"q3"},
+                },
+                "q4": {"a": {"q5"}},
+                "q5": {
+                    "a": {"q5"},
+                    "b": {"q5"},
+                },
+            },
+            initial_state="q1",
+            f={"q5"},
+        )
+
+        nfa_1 = NFA(
+            q={"q1", "q2", "q3"},
+            sigma={"a", "b"},
+            delta={
+                "q1": {
+                    "a": {"q2", "q1"},
+                    "b": {"q1"},
+                },
+                "q2": {"a": {"q3"}},
+                "q3": {
+                    "a": {"q3"},
+                    "b": {"q3"},
+                },
+            },
+            initial_state="q1",
+            f={"q3"},
+        )
+
+        intersection_result = nfa.intersection(nfa_1)
+
+        self.assertTrue(intersection_result.is_valid())
+        self.assertEqual(intersection_result.f, {"('q5', 'q3')"})
+        self.assertTrue(intersection_result.accept("aaaa"))
+        self.assertTrue(intersection_result.accept("aaaaaaaa"))
+        self.assertTrue(intersection_result.accept("aaaaaaaabbbbb"))
+        self.assertFalse(intersection_result.accept("a"))
+        self.assertFalse(intersection_result.accept("bbbbbbbb"))
+        self.assertFalse(intersection_result.accept("abbbbbb"))
+
     def test_renumber(self):
         from automathon import DFA
 
         automata_1 = NFA(
             q={"3", "1", "2", "0"},
             sigma={"", "A", "B", "C"},
-            delta={"0": {"A": {"1"}}, "1": {"B": {"2"}, "": {"2"}}, "2": {"C": {"3"}}},
+            delta={
+                "0": {"A": {"1"}},
+                "1": {"B": {"2"}, "": {"2"}},
+                "2": {"C": {"3"}},
+            },
             initial_state="0",
             f={"3"},
         )
