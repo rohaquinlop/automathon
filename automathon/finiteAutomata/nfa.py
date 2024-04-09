@@ -105,6 +105,9 @@ class NFA:
     union(m : NFA) -> NFA
         Given a NFA m returns the union automaton (NFA)
 
+    intersection(m : NFA) -> NFA
+        Given a NFA m returns the intersection automaton (NFA)
+
     product(m : NFA) -> NFA
         Given a NFA m returns the product automaton (NFA)
 

@@ -160,6 +160,109 @@ union_result.accept("00010010")     # True
 union_result.accept("0011000")      # True
 ```
 
+### intersection
+
+This function receives another automata and returns a new automata that
+represents the intersection of the languages of the original automata and the
+automata received as a parameter.
+
+Example:
+
+```python
+dfa = DFA(
+    q={"A", "B"},
+    sigma={"0", "1"},
+    delta={"A": {"0": "A", "1": "B"}, "B": {"0": "B", "1": "A"}},
+    initial_state="A",
+    f={"B"},
+)
+
+dfa_1 = DFA(
+    q={"R", "S", "T", "U"},
+    sigma={"0", "1"},
+    delta={
+        "R": {"0": "S", "1": "R"},
+        "S": {"0": "T", "1": "R"},
+        "T": {"0": "U", "1": "R"},
+        "U": {"0": "U", "1": "U"},
+    },
+    initial_state="R",
+    f={"U"},
+)
+
+intersection_result = dfa.intersection(dfa_1)
+
+intersection_result.is_valid()          # True
+intersection_result.accept("0001")      # True
+intersection_result.accept("00010010")  # False
+```
+
+### difference
+
+This function receives another automata and returns a new automata that
+represents the difference of the languages of the original automata and the
+automata received as a parameter.
+
+Example:
+
+```python
+dfa = DFA(
+    q={"1", "2"},
+    sigma={"a", "b"},
+    delta={"1": {"a": "2", "b": "1"}, "2": {"a": "1", "b": "2"}},
+    initial_state="1",
+    f={"1"},
+)
+
+dfa_1 = DFA(
+    q={"3", "4"},
+    sigma={"a", "b"},
+    delta={"3": {"a": "3", "b": "4"}, "4": {"a": "4", "b": "3"}},
+    initial_state="3",
+    f={"3"},
+)
+
+difference_result = dfa.difference(dfa_1)
+
+difference_result.is_valid()        # True
+difference_result.accept("b")       # True
+difference_result.accept("aba")     # True
+difference_result.accept("aa")      # True
+```
+
+### symmetric_difference
+
+This function receives another automata and returns a new automata that
+represents the symmetric difference of the languages of the original automata
+and the automata received as a parameter.
+
+Example:
+
+```python
+dfa = DFA(
+    q={"1", "2"},
+    sigma={"a", "b"},
+    delta={"1": {"a": "2", "b": "1"}, "2": {"a": "1", "b": "2"}},
+    initial_state="1",
+    f={"1"},
+)
+
+dfa_1 = DFA(
+    q={"3", "4"},
+    sigma={"a", "b"},
+    delta={"3": {"a": "3", "b": "4"}, "4": {"a": "4", "b": "3"}},
+    initial_state="3",
+    f={"3"},
+)
+
+symmetric_difference_result = dfa.symmetric_difference(dfa_1)
+
+symmetric_difference_result.is_valid()      # True
+difference_result.accept("b")               # True
+difference_result.accept("a")               # True
+difference_result.accept("abbabb")          # False
+```
+
 ### product
 
 This function receives another automata and returns a new automata that

@@ -246,6 +246,65 @@ union_result.accept("aaaaaa")       # True
 union_result.accept("aaaabbbbaaa")  # False
 ```
 
+### intersection
+
+This function receives another automata and returns a new automata that
+represents the intersection of the languages of the original automata and the
+automata received as a parameter.
+
+Example:
+
+```python
+nfa = NFA(
+    q={"q1", "q2", "q3", "q4", "q5"},
+    sigma={"a", "b"},
+    delta={
+        "q1": {
+            "a": {"q2", "q1"},
+            "b": {"q1"},
+        },
+        "q2": {"a": {"q3"}},
+        "q3": {
+            "a": {"q3", "q4"},
+            "b": {"q3"},
+        },
+        "q4": {"a": {"q5"}},
+        "q5": {
+            "a": {"q5"},
+            "b": {"q5"},
+        },
+    },
+    initial_state="q1",
+    f={"q5"},
+)
+
+nfa_1 = NFA(
+    q={"q1", "q2", "q3"},
+    sigma={"a", "b"},
+    delta={
+        "q1": {
+            "a": {"q2", "q1"},
+            "b": {"q1"},
+        },
+        "q2": {"a": {"q3"}},
+        "q3": {
+            "a": {"q3"},
+            "b": {"q3"},
+        },
+    },
+    initial_state="q1",
+    f={"q3"},
+)
+
+intersection_result = nfa.intersection(nfa_1)
+
+intersection_result.is_valid()                  # True
+intersection_result.accept("aaaaaaaa")          # True
+intersection_result.accept("aaaaaaaabbbbb")     # True
+intersection_result.accept("a")                 # False
+intersection_result.accept("bbbbbbbb")          # False
+```
+
 ### product
 
 This function receives another automata and returns a new automata that
