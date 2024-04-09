@@ -326,6 +326,20 @@ class DFA:
             m, lambda a, f, b, f_m: a in f and b in f_m
         )
 
+    def difference(self, m: "DFA") -> "DFA":
+        """Given a DFA  returns the difference automaton"""
+        return self._binary_operation(
+            m, lambda a, f, b, f_m: a in f and b not in f_m
+        )
+
+    def symmetric_difference(self, m: "DFA") -> "DFA":
+        """Given a DFA  returns the symmetric difference automaton"""
+        return self._binary_operation(
+            m,
+            lambda a, f, b, f_m: (a in f and b not in f_m)
+            or (a not in f and b in f_m),
+        )
+
     def view(
         self,
         file_name: str,
