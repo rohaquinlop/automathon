@@ -1,0 +1,2 @@
+builtins = ["_"]
+line-length = 80
