@@ -1,0 +1,13 @@
+py_library(
+    name = "finite_automata",
+    srcs = [
+        "__init__.py",
+        "dfa.py",
+        "nfa.py",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//automathon/errors",
+        "@pip//graphviz",
+    ],
+)

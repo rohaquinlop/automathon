@@ -1,6 +1,18 @@
-###############################################################################
-# Bazel now uses Bzlmod by default to manage external dependencies.
-# Please consider migrating your external dependencies from WORKSPACE to MODULE.bazel.
-#
-# For more details, please check https://github.com/bazelbuild/bazel/issues/18958
-###############################################################################
+"""
+Bazel build file for the Python module.
+
+Imports the `rules_python` dependency and the `pip` extension from the
+`rules_python` repository.
+"""
+
+bazel_dep(name = "rules_python", version = "0.34.0")
+
+pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
+
+pip.parse(
+    hub_name = "pip",
+    python_version = "3.11",
+    requirements_lock = "//:requirements.txt",
+)
+
+use_repo(pip, "pip")
