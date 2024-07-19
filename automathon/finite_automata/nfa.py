@@ -6,7 +6,7 @@ from automathon.errors.errors import (
     InputError,
     SigmaError,
 )
-from automathon.finiteAutomata.dfa import (
+from automathon.finite_automata.dfa import (
     DFA,
 )
 from collections import (

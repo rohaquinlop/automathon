@@ -168,7 +168,7 @@ class DFA:
         return DFA(q, sigma, delta, initial_state, f)
 
     def get_nfa(self):
-        from automathon.finiteAutomata.nfa import NFA
+        from automathon.finite_automata.nfa import NFA
 
         """Convert the actual DFA to NFA class and return it's conversion"""
         q = self.q.copy()

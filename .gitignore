@@ -10,3 +10,4 @@ automathon/errors/__pycache__/
 build/
 .idea/
 bazel-*
+.pytest_cache/
