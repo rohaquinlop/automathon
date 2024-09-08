@@ -151,9 +151,8 @@ class NFA:
 
         # BFS states
 
-        q = (
-            deque()
-        )  # queue -> states from i to last character in S | (index, state)
+        q: deque[tuple[int, str]] = deque()
+        # queue -> states from i to last character in S | (index, state)
         q.append([0, self.initial_state])  # Starts from 0
         ans = False  # Flag
 
@@ -513,7 +512,7 @@ class NFA:
 
     def minimize(self) -> "NFA":
         """Minimize the automata and return the NFA result of the minimization"""
-        local_dfa = self.get_dfa()
+        local_dfa = self.get_dfa().minimize()
         local_nfa = local_dfa.get_nfa()
         local_nfa.renumber()
         return local_nfa
