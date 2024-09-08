@@ -278,6 +278,32 @@ class DFA:
 
         return sigma, q, f, delta
 
+    def union(self, m: "DFA") -> "DFA":
+        """Given a DFA  returns the union automaton"""
+        return self.__binary_operation(
+            m, lambda a, f, b, f_m: a in f or b in f_m
+        )
+
+    def intersection(self, m: "DFA") -> "DFA":
+        """Given a DFA  returns the intersection automaton"""
+        return self.__binary_operation(
+            m, lambda a, f, b, f_m: a in f and b in f_m
+        )
+
+    def difference(self, m: "DFA") -> "DFA":
+        """Given a DFA  returns the difference automaton"""
+        return self.__binary_operation(
+            m, lambda a, f, b, f_m: a in f and b not in f_m
+        )
+
+    def symmetric_difference(self, m: "DFA") -> "DFA":
+        """Given a DFA  returns the symmetric difference automaton"""
+        return self.__binary_operation(
+            m,
+            lambda a, f, b, f_m: (a in f and b not in f_m)
+            or (a not in f and b in f_m),
+        )
+
     def __binary_operation(
         self, m: "DFA", operation: Callable[..., bool]
     ) -> "DFA":
@@ -320,32 +346,6 @@ class DFA:
                     delta[str((a, b))] = {s: str(new_q)}
 
         return DFA(set(map(str, new_q_list)), sigma, delta, initial_state, f)
-
-    def union(self, m: "DFA") -> "DFA":
-        """Given a DFA  returns the union automaton"""
-        return self.__binary_operation(
-            m, lambda a, f, b, f_m: a in f or b in f_m
-        )
-
-    def intersection(self, m: "DFA") -> "DFA":
-        """Given a DFA  returns the intersection automaton"""
-        return self.__binary_operation(
-            m, lambda a, f, b, f_m: a in f and b in f_m
-        )
-
-    def difference(self, m: "DFA") -> "DFA":
-        """Given a DFA  returns the difference automaton"""
-        return self.__binary_operation(
-            m, lambda a, f, b, f_m: a in f and b not in f_m
-        )
-
-    def symmetric_difference(self, m: "DFA") -> "DFA":
-        """Given a DFA  returns the symmetric difference automaton"""
-        return self.__binary_operation(
-            m,
-            lambda a, f, b, f_m: (a in f and b not in f_m)
-            or (a not in f and b in f_m),
-        )
 
     def minimize(self) -> "DFA":
         """Minimize the automata and return the minimized version"""
