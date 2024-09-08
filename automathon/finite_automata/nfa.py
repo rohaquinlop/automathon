@@ -9,6 +9,11 @@ from automathon.errors.errors import (
 from automathon.finite_automata.dfa import (
     DFA,
 )
+from automathon.utils.utils import (
+    list_filter,
+    list_map,
+    flatten_list,
+)
 from collections import (
     deque,
 )
@@ -142,10 +147,11 @@ class NFA:
             True if the string is accepted by the NFA, False otherwise.
         """
 
-        def _add_pairs_to_queue(q, pairs):
+        def _add_pairs_to_queue(
+            q: deque[tuple[int, str]], pairs: list[tuple[int, str]]
+        ):
             for pair in pairs:
-                for state in pair:
-                    q.append(state)
+                q.append(pair)
 
         # Basic Idea: Search through states (delta) in the NFA, since the initial state to the final states
 
@@ -170,30 +176,32 @@ class NFA:
                 epsilon_transitions = filter(
                     lambda x: x[0] == "", self.delta[state].items()
                 )
-                epsilon_pairs = map(
-                    lambda transition, idx=idx: map(
-                        lambda state: [idx, state], transition[1]
-                    ),
-                    epsilon_transitions,
+                epsilon_pairs = flatten_list(
+                    list_map(
+                        lambda transition, idx=idx: list_map(
+                            lambda state: (idx, state), transition[1]
+                        ),
+                        epsilon_transitions,
+                    )
                 )
                 # Add epsilon transitions to the queue
                 _add_pairs_to_queue(q, epsilon_pairs)
 
-                valid_transitions = filter(
+                valid_transitions = list_filter(
                     lambda x, idx=idx: x[0] == string[idx],
                     self.delta[state].items(),
                 )
-                valid_pairs = map(
-                    lambda transition, idx=idx: map(
-                        lambda state, idx=idx: [idx + 1, state], transition[1]
-                    ),
-                    valid_transitions,
+                valid_pairs = flatten_list(
+                    list_map(
+                        lambda transition, idx=idx: list_map(
+                            lambda state, idx=idx: (idx + 1, state),
+                            transition[1],
+                        ),
+                        valid_transitions,
+                    )
                 )
                 # Add valid transitions to the queue
                 _add_pairs_to_queue(q, valid_pairs)
-
-        if string == "":
-            ans = True
 
         return ans
 
@@ -295,41 +303,6 @@ class NFA:
 
         return NFA(q, sigma, delta, initial_state, f)
 
-    def _get_e_closure(
-        self, q: str, visited: list[str] | None = None
-    ) -> list[str]:
-        """
-        Returns a list of the epsilon closures from estate q.
-
-        Parameters
-        - - - - - - - - - - - - - - - - - -
-        q : str
-            The state from which to start the search.
-        visited : list[str], optional
-            A list of already visited states. Defaults to None, in which case it is initialized as a list containing q.
-
-        Returns
-        - - - - - - - - - - - - - - - - - -
-        list[str]
-            A list of states reachable from q by following epsilon transitions.
-        """
-        ans = [q]
-        if visited is None:
-            visited = list(q)
-
-        if q in self.delta and "" in self.delta[q]:
-            for st in self.delta[q][""]:
-                if st not in visited:
-                    visited.append(st)
-                    ans.extend(
-                        [
-                            k
-                            for k in self._get_e_closure(st, visited)
-                            if k not in ans
-                        ]
-                    )
-        return ans
-
     def contains_epsilon_transitions(self) -> bool:
         """Returns True if the NFA contains Epsilon transitions.
 
@@ -371,17 +344,52 @@ class NFA:
 
         delta_prime = dict()
         for q in q_prime:
-            closure_states = self._get_e_closure(q)
+            closure_states = self.__get_e_closure(q)
 
             for sigma in self.sigma:
-                new_transitions = self._ret_get_new_transitions(
+                new_transitions = self.__ret_get_new_transitions(
                     q, sigma, closure_states, delta_f
                 )
-                self._ret_update_delta(delta_prime, q, sigma, new_transitions)
+                self.__ret_update_delta(delta_prime, q, sigma, new_transitions)
 
         return NFA(q_prime, self.sigma, delta_prime, delta_init_state, delta_f)
 
-    def _ret_get_new_transitions(
+    def __get_e_closure(
+        self, q: str, visited: list[str] | None = None
+    ) -> list[str]:
+        """
+        Returns a list of the epsilon closures from estate q.
+
+        Parameters
+        - - - - - - - - - - - - - - - - - -
+        q : str
+            The state from which to start the search.
+        visited : list[str], optional
+            A list of already visited states. Defaults to None, in which case it is initialized as a list containing q.
+
+        Returns
+        - - - - - - - - - - - - - - - - - -
+        list[str]
+            A list of states reachable from q by following epsilon transitions.
+        """
+        ans = [q]
+        if visited is None:
+            visited = list(q)
+
+        if q in self.delta and "" in self.delta[q]:
+            for st in self.delta[q][""]:
+                if st not in visited:
+                    visited.append(st)
+                    ans.extend(
+                        [
+                            k
+                            for k in self.__get_e_closure(st, visited)
+                            if k not in ans
+                        ]
+                    )
+        return ans
+
+    def __ret_get_new_transitions(
         self, q: str, sigma: str, closure_states: list[str], delta_f: set[str]
     ):
         to_epsilon_closure: list[str] = []
@@ -399,11 +407,11 @@ class NFA:
 
         # Get the new transitions from the epsilon closure
         for epsilon_closure in to_epsilon_closure:
-            new_transitions.extend(self._get_e_closure(epsilon_closure))
+            new_transitions.extend(self.__get_e_closure(epsilon_closure))
 
         return new_transitions
 
-    def _ret_update_delta(
+    def __ret_update_delta(
         self,
         delta_prime: dict[str, dict[str, set[str]]],
         q: str,
@@ -453,9 +461,9 @@ class NFA:
             for q in states_in_nfa_delta:
                 for s in local_nfa.delta[q]:
                     tmp = local_nfa.delta[q][s].copy()
-                    self._extend_local_transitions(tmp, s, local_transitions)
+                    self.__extend_local_transitions(tmp, s, local_transitions)
 
-            self._update_local_transitions(local_transitions, visited, queue)
+            self.__update_local_transitions(local_transitions, visited, queue)
 
             delta_prime[str(qs)] = local_transitions
             q_prime.append(qs)
@@ -483,7 +491,7 @@ class NFA:
             f_prime,
         )
 
-    def _extend_local_transitions(
+    def __extend_local_transitions(
         self, tmp: set[str], s: str, local_transitions: dict[str, list[str]]
     ) -> None:
         if tmp and s in local_transitions:
@@ -494,7 +502,7 @@ class NFA:
         elif tmp:
             local_transitions[s] = list(tmp)
 
-    def _update_local_transitions(
+    def __update_local_transitions(
         self,
         local_transitions: dict[str, list[str]],
         visited: list[list[str]],
@@ -584,8 +592,10 @@ class NFA:
             f.add(real_value_m[_q])
 
         # Replace the values
-        self_delta = self._get_new_delta_real_value(self.delta, real_value_self)
-        m_delta = self._get_new_delta_real_value(m.delta, real_value_m)
+        self_delta = self.__get_new_delta_real_value(
+            self.delta, real_value_self
+        )
+        m_delta = self.__get_new_delta_real_value(m.delta, real_value_m)
 
         delta = {
             **self_delta,
@@ -600,7 +610,7 @@ class NFA:
 
         return NFA(q, sigma, delta, initial_state, f)
 
-    def _get_new_delta_real_value(
+    def __get_new_delta_real_value(
         self, delta: dict[str, dict[str, set[str]]], real_value: dict[str, str]
     ) -> dict[str, dict[str, set[str]]]:
         new_delta = dict()

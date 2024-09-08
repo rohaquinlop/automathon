@@ -1,0 +1,8 @@
+py_library(
+    name = "utils",
+    srcs = [
+        "__init__.py",
+        "utils.py",
+    ],
+    visibility = ["//visibility:public"],
+)

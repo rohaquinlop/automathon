@@ -50,8 +50,8 @@ pip install automathon --upgrade
 ## Example
 
 Here is are some examples about what you can do with **automathon**, you can
-check the documentation about [Deterministic Finite Automata](dfa.md) and
-[Non-Deterministic Finite Automata](nfa.md) to know more about the functions and
+check the documentation about [Deterministic Finite Automata](https://rohaquinlop.github.io/automathon/dfa/) and
+[Non-Deterministic Finite Automata](https://rohaquinlop.github.io/automathon/nfa/) to know more about the functions and
 methods that are available.
 
 ### DFA - Deterministic Finite Automata
@@ -114,8 +114,7 @@ Note that this function returns a new automata, it doesn't modify the original
 one.
 
 #### Visualize the automata
-
-For both, [DFA](dfa.md) and [NFA](nfa.md), the view method enables to visualize the automaton, receives as parameter a String as the file name for the png and svg files.
+For both, [DFA](https://rohaquinlop.github.io/automathon/dfa/) and [NFA](https://rohaquinlop.github.io/automathon/nfa/), the view method enables to visualize the automaton, receives as parameter a String as the file name for the png and svg files.
 
 More information about the graphviz attributes [here](https://www.graphviz.org/doc/info/attrs.html).
 
@@ -134,8 +133,8 @@ automata.view(
 ```
 
 If you want to explore more about the functions and methods of the DFA class,
-you can check the [DFA documentation](dfa.md). And if you want to know more about
-the NFA class, you can check the [NFA documentation](nfa.md).
+you can check the [DFA documentation](https://rohaquinlop.github.io/automathon/dfa/). And if you want to know more about
+the NFA class, you can check the [NFA documentation](https://rohaquinlop.github.io/automathon/nfa/).
 
 ### NFA - Non-Deterministic Finite Automata
 
