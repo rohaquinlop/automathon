@@ -135,6 +135,40 @@ class TestDFA(unittest.TestCase):
         self.assertFalse(symmetric_difference_result.accept("ab"))
         self.assertFalse(symmetric_difference_result.accept("abbabb"))
 
+    def test_minimize(self):
+        dfa = DFA(
+            q={"A", "B", "C", "D", "E", "F"},
+            sigma={"0", "1"},
+            delta={
+                "A": {"0": "B", "1": "C"},
+                "B": {"0": "A", "1": "D"},
+                "C": {"0": "E", "1": "F"},
+                "D": {"1": "F"},
+                "E": {"0": "D", "1": "F"},
+                "F": {"0": "F", "1": "F"},
+            },
+            initial_state="A",
+            f={"D", "E"},
+        )
+
+        minimized_dfa = dfa.minimize()
+
+        self.assertTrue(minimized_dfa.is_valid())
+
+    def test_minimize_existing_1(self):
+        minimized_fa = self.fa.minimize()
+        not_minimized_fa = minimized_fa.complement()
+
+        self.assertTrue(minimized_fa.is_valid())
+        self.assertTrue(minimized_fa.accept(""))
+        self.assertTrue(minimized_fa.accept("001001"))
+        self.assertTrue(minimized_fa.accept("0101010101010"))
+
+        self.assertTrue(not_minimized_fa.is_valid())
+        self.assertFalse(not_minimized_fa.accept(""))
+        self.assertFalse(not_minimized_fa.accept("001001"))
+        self.assertFalse(not_minimized_fa.accept("0101010101010"))
+
 
 if __name__ == "__main__":
     unittest.main()
