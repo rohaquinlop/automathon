@@ -154,15 +154,55 @@ class TestDFA(unittest.TestCase):
         minimized_dfa = dfa.minimize()
 
         self.assertTrue(minimized_dfa.is_valid())
+        self.assertGreaterEqual(len(dfa.q), len(minimized_dfa.q))
+
+    def test_minimize_2(self):
+        fa = DFA(
+            q={"q0", "q1", "q2", "q3", "q4", "q5"},
+            sigma={"0", "1"},
+            delta={
+                "q0": {"0": "q3", "1": "q1"},
+                "q1": {"0": "q2", "1": "q5"},
+                "q2": {"0": "q2", "1": "q5"},
+                "q3": {"0": "q0", "1": "q4"},
+                "q4": {"0": "q2", "1": "q5"},
+                "q5": {"0": "q5", "1": "q5"},
+            },
+            initial_state="q0",
+            f={"q1", "q2", "q4"},
+        )
+        minimized_fa = fa.minimize()
+
+        self.assertGreaterEqual(len(fa.q), len(minimized_fa.q))
+        self.assertEqual(fa.accept("1"), minimized_fa.accept("1"))
+        self.assertEqual(fa.accept("11"), minimized_fa.accept("11"))
+        self.assertEqual(fa.accept("110"), minimized_fa.accept("110"))
+        self.assertEqual(fa.accept("1101"), minimized_fa.accept("1101"))
+        self.assertEqual(fa.accept("01"), minimized_fa.accept("01"))
+        self.assertEqual(fa.accept("0101"), minimized_fa.accept("0101"))
 
     def test_minimize_existing_1(self):
-        minimized_fa = self.fa.minimize()
+        fa = DFA(
+            q={"q0", "q1", "q2"},
+            sigma={"0", "1"},
+            delta={
+                "q0": {"0": "q0", "1": "q1"},
+                "q1": {"0": "q2", "1": "q0"},
+                "q2": {"0": "q1", "1": "q2"},
+            },
+            initial_state="q0",
+            f={"q0"},
+        )
+        minimized_fa = fa.minimize()
         not_minimized_fa = minimized_fa.complement()
 
+        self.assertGreaterEqual(len(fa.q), len(minimized_fa.q))
         self.assertTrue(minimized_fa.is_valid())
-        self.assertTrue(minimized_fa.accept(""))
-        self.assertTrue(minimized_fa.accept("001001"))
-        self.assertTrue(minimized_fa.accept("0101010101010"))
+        self.assertEqual(fa.accept(""), minimized_fa.accept(""))
+        self.assertEqual(fa.accept("001001"), minimized_fa.accept("001001"))
+        self.assertEqual(
+            fa.accept("0101010101010"), minimized_fa.accept("0101010101010")
+        )
 
         self.assertTrue(not_minimized_fa.is_valid())
         self.assertFalse(not_minimized_fa.accept(""))
