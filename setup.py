@@ -10,7 +10,11 @@ with open(path.join(thisDirectory, "README.md"), encoding="utf-8") as f:
 setup(
     name="automathon",
     packages=find_packages(
-        include=["automathon", "automathon.finiteAutomata", "automathon.errors"]
+        include=[
+            "automathon",
+            "automathon.finite_automata",
+            "automathon.errors",
+        ]
     ),
     include_package_data=True,
     version="{{VERSION_PLACEHOLDER}}",
