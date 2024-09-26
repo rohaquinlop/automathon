@@ -3,7 +3,6 @@ from __future__ import (
     annotations,
 )
 from automathon.errors.errors import (
-    InputError,
     SigmaError,
 )
 from automathon.finite_automata.dfa import (
@@ -169,9 +168,7 @@ class NFA:
 
             if idx == len(string) and state in self.f:
                 ans = True
-            elif idx < len(string) and string[idx] not in self.sigma:
-                raise InputError(string[idx], "Is not declared in sigma")
-            elif idx < len(string) and state in self.delta:
+            elif idx < len(string):
                 # Search through states
                 epsilon_transitions = filter(
                     lambda x: x[0] == "", self.delta[state].items()
