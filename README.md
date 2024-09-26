@@ -1,7 +1,7 @@
 # automathon
 
 <p align="center">
-    <a href="https://rohaquinlop.github.io/automathon/"><img src="docs/img/logo-vector.svg" alt="automathon"></a>
+    <a href="https://rohaquinlop.github.io/automathon/"><img src="https://raw.githubusercontent.com/rohaquinlop/automathon/main/docs/img/logo-vector.svg" alt="automathon"></a>
 </p>
 
 <p align="center">
