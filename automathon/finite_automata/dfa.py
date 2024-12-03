@@ -20,6 +20,7 @@ from graphviz import (
 from typing import (
     Callable,
 )
+import itertools
 
 
 @dataclass
@@ -183,103 +184,40 @@ class DFA:
             tmp = dict()
             for s, _q in transition.items():
                 # s : sigma
-                tmp[s] = ["".join(_q)]
+                tmp[s] = [_q]
 
             delta[state] = tmp
 
         return NFA(q, sigma, delta, initial_state, f)
 
     def product(self, m: "DFA") -> "DFA":
-        """Given a DFA m returns the product automaton"""
+        initial_state = str((self.initial_state, m.initial_state))
+        cross_product_states = {
+            (q_1, q_2) for q_1, q_2 in itertools.product(self.q, m.q)
+        }
+        q = {str(state) for state in cross_product_states}
+        sigma = self.sigma & m.sigma
+        f = {
+            str((q_1, q_2))
+            for (q_1, q_2) in cross_product_states
+            if q_1 in self.f and q_2 in m.f
+        }
         delta: dict[str, dict[str, str]] = dict()
-        q: set[str] = set()
-        f: set[str] = set()
-        sigma: set[str] = self.sigma.intersection(m.sigma)
 
-        for state, transition in self.delta.items():
-            # i : str, j : dict(sigma, Q)
-            for state_m, transition_m in m.delta.items():
-                # stateM : str, transitionM : dict(sigma, Q)
-                sigma, q, f, delta = self.__process_states(
-                    state,
-                    state_m,
-                    transition,
-                    transition_m,
-                    sigma,
-                    q,
-                    f,
-                    m.f,
-                    delta,
+        for q_1, q_2 in cross_product_states:
+            actual_state = str((q_1, q_2))
+            delta[actual_state] = dict()
+            common_sigma = filter(
+                lambda x: x in sigma,
+                set(self.delta[q_1].keys()) | set(m.delta[q_2].keys()),
+            )
+
+            for a in common_sigma:
+                delta[actual_state][a] = str(
+                    (self.delta[q_1][a], m.delta[q_2][a])
                 )
 
-        return DFA(
-            q, sigma, delta, str([self.initial_state, m.initial_state]), f
-        )
-
-    def __process_states(
-        self,
-        state: str,
-        state_m: str,
-        transition: dict[str, str],
-        transition_m: dict[str, str],
-        sigma: set[str],
-        q: set[str],
-        f: set[str],
-        f_m: set[str],
-        delta: dict[str, dict[str, str]],
-    ) -> tuple[set[str], set[str], set[str], dict[str, dict[str, str]]]:
-        for s in transition:
-            if s in transition_m:
-                sigma, q, f, delta = self.__process_transitions(
-                    state,
-                    state_m,
-                    s,
-                    transition,
-                    transition_m,
-                    sigma,
-                    q,
-                    f,
-                    f_m,
-                    delta,
-                )
-        return sigma, q, f, delta
-
-    def __process_transitions(
-        self,
-        state: str,
-        state_m: str,
-        s: str,
-        transition: dict[str, str],
-        transition_m: dict[str, str],
-        sigma: set[str],
-        q: set[str],
-        f: set[str],
-        f_m: set[str],
-        delta: dict[str, dict[str, str]],
-    ) -> tuple[set[str], set[str], set[str], dict[str, dict[str, str]]]:
-        # sigma value in common
-        sigma.add(s)
-
-        tmp = str([state, state_m])
-        tmp1 = str([transition[s], transition_m[s]])
-        aux = dict()
-        aux[s] = tmp1
-
-        q.add(tmp)
-        q.add(tmp1)
-
-        if state in self.f and state_m in f_m:
-            f.add(tmp)
-
-        if transition[s] in self.f and transition_m[s] in f_m:
-            f.add(tmp1)
-
-        if tmp in delta:
-            delta[tmp].update(aux)
-        else:
-            delta[tmp] = aux
-
-        return sigma, q, f, delta
+        return DFA(q, sigma, delta, initial_state, f)
 
     def union(self, m: "DFA") -> "DFA":
         """Given a DFA  returns the union automaton"""

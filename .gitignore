@@ -11,3 +11,4 @@ build/
 .idea/
 bazel-*
 .pytest_cache/
+.DS_store
