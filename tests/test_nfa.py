@@ -178,27 +178,30 @@ class TestNFA(unittest.TestCase):
         self.assertFalse(intersection_result.accept("abbbbbb"))
 
     def test_renumber(self):
-        from automathon import DFA
+        q = {"alpha", "beta", "gamma", "sigma"}
+        delta = {
+            "sigma": {"A": {"beta"}},
+            "beta": {"B": {"gamma"}, "": {"gamma"}},
+            "gamma": {"C": {"alpha"}},
+        }
+        initial_state = "sigma"
+        f = {"alpha"}
 
-        automata_1 = NFA(
-            q={"3", "1", "2", "0"},
+        automaton = NFA(
+            q=q,
             sigma={"", "A", "B", "C"},
-            delta={
-                "0": {"A": {"1"}},
-                "1": {"B": {"2"}, "": {"2"}},
-                "2": {"C": {"3"}},
-            },
-            initial_state="0",
-            f={"3"},
+            delta=delta,
+            initial_state=initial_state,
+            f=f,
         )
 
-        automata_2: NFA = automata_1.remove_epsilon_transitions()
-        automata_3: DFA = automata_2.get_dfa()
-        automata_4: NFA = automata_3.get_nfa()
+        automaton.renumber(prefix="q")
 
-        automata_4.renumber()
-
-        self.assertTrue(automata_4.is_valid())
+        self.assertTrue(automaton.is_valid())
+        self.assertSetEqual(automaton.q, {"q0", "q1", "q2", "q3"})
+        self.assertNotEqual(automaton.f, f)
+        self.assertNotEqual(automaton.initial_state, initial_state)
+        self.assertNotEqual(automaton.delta, delta)
 
 
 if __name__ == "__main__":
