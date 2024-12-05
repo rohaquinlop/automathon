@@ -377,13 +377,11 @@ class NFA:
             for st in self.delta[q][""]:
                 if st not in visited:
                     visited.append(st)
-                    ans.extend(
-                        [
-                            k
-                            for k in self.__get_e_closure(st, visited)
-                            if k not in ans
-                        ]
-                    )
+                    ans.extend([
+                        k
+                        for k in self.__get_e_closure(st, visited)
+                        if k not in ans
+                    ])
         return ans
 
     def __ret_get_new_transitions(
@@ -493,9 +491,9 @@ class NFA:
     ) -> None:
         if tmp and s in local_transitions:
             # avoid add repeated values
-            local_transitions[s].extend(
-                [k for k in tmp if k not in local_transitions[s]]
-            )
+            local_transitions[s].extend([
+                k for k in tmp if k not in local_transitions[s]
+            ])
         elif tmp:
             local_transitions[s] = list(tmp)
 
@@ -522,39 +520,33 @@ class NFA:
         local_nfa.renumber()
         return local_nfa
 
-    def renumber(self) -> None:
-        """Change the name of the states, renumbering each of the labels"""
-        idx = 0
-        new_tags = dict()
+    def renumber(self, prefix="q") -> None:
+        """
+        Change the name of the states, renumbering each of the labels
 
-        # New values
-        q = set()
+        Parameters
+        ----------
+        prefix : str
+            Prefix for the renumbered state names.
+        """
+
         delta = dict()
-        f = set()
 
-        # Setting the new label for each state
-        tmp_q = list(self.q)
-        tmp_q.sort()
+        # Create new mappings for states
+        new_tags = {state: f"{prefix}{idx}" for idx, state in enumerate(self.q)}
 
-        for _q in tmp_q:
-            new_tags[_q] = str(idx)
-            q.add(str(idx))
-            idx += 1
-
+        # Update states
+        q = {new_tags[state] for state in self.q}
+        f = {new_tags[state] for state in self.f}
         initial_state = new_tags[self.initial_state]
 
-        # Changing the labels for the final states
-        for _f in self.f:
-            f.add(new_tags[_f])
-
+        # Update transitions
         for _q in self.delta:
             delta[new_tags[_q]] = dict()
             for s in self.delta[_q]:
-                nxt_states = list()
-                for nxt_state in self.delta[_q][s]:
-                    nxt_states.append(new_tags[nxt_state])
-
-                delta[new_tags[_q]][s] = set(nxt_states)
+                delta[new_tags[_q]][s] = {
+                    new_tags[nxt_state] for nxt_state in self.delta[_q][s]
+                }
 
         self.q, self.f, self.delta, self.initial_state = (
             q,
