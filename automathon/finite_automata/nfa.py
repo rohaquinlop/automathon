@@ -23,6 +23,10 @@ from graphviz import (
     Digraph,
 )
 
+from typing import (
+    Literal
+)
+
 
 @dataclass
 class NFA:
@@ -679,12 +683,13 @@ class NFA:
     def view(
         self,
         file_name: str,
+        file_format: Literal["svg", "png"] = "png",
         node_attr: dict[str, str] | None = None,
         edge_attr: dict[str, str] | None = None,
     ) -> None:
         dot = Digraph(
             name=file_name,
-            format="png",
+            format=file_format,
             node_attr=node_attr,
             edge_attr=edge_attr,
         )
