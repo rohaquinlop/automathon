@@ -123,7 +123,7 @@ More information about the graphviz attributes [here](https://www.graphviz.org/d
 # Default styling
 automata.view("DFA Visualization")
 
-# You an decide between png and svg file formats
+# You can decide between png and svg file formats
 # If you want to add custom styling, you can use the following
 
 automata.view(
@@ -202,7 +202,7 @@ not_automata.accept("000001")    #True
 # Default styling
 automata.view("NFA Visualization")
 
-# You an decide between png and svg file formats
+# You can decide between png and svg file formats
 # If you want to add custom styling, you can use the following
 
 automata.view(

@@ -201,7 +201,7 @@ not_automata.accept("000001")    #True
 # Default styling
 automata.view("NFA Visualization")
 
-# You an decide between png and svg file formats
+# You can decide between png and svg file formats
 # If you want to add custom styling, you can use the following
 
 automata.view(
