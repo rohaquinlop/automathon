@@ -201,10 +201,12 @@ not_automata.accept("000001")    #True
 # Default styling
 automata.view("NFA Visualization")
 
+# You can decide between png and svg file formats
 # If you want to add custom styling, you can use the following
 
 automata.view(
     file_name="NFA Custom Styling",
+    file_format="png" or "svg",
     node_attr={'fontsize': '20'},
     edge_attr={'fontsize': '20pt'}
 )

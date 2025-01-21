@@ -89,9 +89,10 @@ Example:
 ```python
 automata.view("DFA Visualization")
 
-# Add custom styling
+# Add custom styling or change the file format
 
 automata.view(file_name="DFA Custom Styling",
+              file_format="png" or "svg",
               node_attr={'fontsize': '20'},
               edge_attr={'fontsize': '20pt'})
 ```

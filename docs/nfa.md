@@ -111,10 +111,11 @@ automata.
 ```python
 automata.view("NFA Visualization")
 
-# Add custom styling
+# Add custom styling or change the file format
 
 automata.view(
     file_name="NFA Custom Styling",
+    file_format="png" or "svg",
     node_attr={'fontsize': '20'},
     edge_attr={'fontsize': '20pt'}
 )
