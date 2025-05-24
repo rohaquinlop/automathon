@@ -270,7 +270,7 @@ class DFA(FA):
             tmp = dict()
             for s, _q in transition.items():
                 # s : sigma
-                tmp[s] = [_q]
+                tmp[s] = set([_q])
 
             delta[state] = tmp
 

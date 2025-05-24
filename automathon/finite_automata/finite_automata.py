@@ -8,6 +8,7 @@ from typing import (
     Dict,
     Any,
     Optional,
+    Union,
 )
 from graphviz import Digraph
 
@@ -123,6 +124,14 @@ class FA(ABC):
         """
         return all(f in self.q for f in self.f)
 
+    def _validate_transition(
+        self, q: Set[str], next_state: Union[str, Set[str]]
+    ) -> bool:
+        if isinstance(next_state, str):
+            return next_state in q
+        elif isinstance(next_state, set):
+            return all(ns in q for ns in next_state)
+
     def _validate_transitions(self) -> bool:
         """Validate that all transitions are valid.
 
@@ -137,12 +146,9 @@ class FA(ABC):
                 if symbol and symbol not in self.sigma:
                     return False
 
-                if isinstance(next_state, str):
-                    if next_state not in self.q:
-                        return False
-                elif isinstance(next_state, set):
-                    if not all(ns in self.q for ns in next_state):
-                        return False
+                if not self._validate_transition(self.q, next_state):
+                    return False
+
         return True
 
     def _create_base_graph(
