@@ -1,46 +1,33 @@
-# Exceptions module
-from __future__ import (
-    annotations,
-)
-from automathon.errors.errors import (
-    SigmaError,
-)
-from automathon.utils.utils import (
-    list_map,
-)
-from collections import (
-    deque,
-)
-from dataclasses import (
-    dataclass,
-)
-from graphviz import (
-    Digraph,
-)
+from automathon.utils.utils import list_map
+from .finite_automata import FA
+from collections import deque
 from typing import (
     Callable,
-)
-from typing import (
-    Literal
+    Literal,
+    Set,
+    Dict,
+    List,
+    Tuple,
+    Optional,
+    FrozenSet,
 )
 import itertools
 
 
-@dataclass
-class DFA:
+class DFA(FA):
     """A class used to represent a Deterministic Finite Automaton (DFA).
 
     Attributes
     ----------
-    q : set[str]
+    q : Set[str]
         Set of strings where each string represents a state.
         Example: q = {'q0', 'q1', 'q2'}
 
-    sigma : set[str]
+    sigma : Set[str]
         Set of strings that represents the alphabet.
         Example: sigma = {'0', '1'}
 
-    delta : dict[str, dict[str, str]]
+    delta : Dict[str, Dict[str, str]]
         Dictionary that represents the transition function.
         Example: delta = {
                       'q0' : {'0' : 'q0', '1' : 'q1'},
@@ -53,7 +40,7 @@ class DFA:
         processed (initial_state ∈ q / initial_state in q).
         Example: initial_state = 'q0'
 
-    f : set[str]
+    f : Set[str]
         Set of strings that represent the final state/states of Q (f ⊆ Q).
         Example: f = {'q0'}
 
@@ -68,12 +55,6 @@ class DFA:
     complement() -> DFA
         Returns the complement of the DFA.
 
-    get_nfa() -> NFA
-        Converts the actual DFA to NFA and returns its conversion.
-
-    product(m: DFA) -> DFA
-        Given a DFA m, returns the product automaton.
-
     union(m: DFA) -> DFA
         Given a DFA m, returns the union automaton.
 
@@ -86,17 +67,40 @@ class DFA:
     symmetric_difference(m: DFA) -> DFA
         Given a DFA m, returns the symmetric difference automaton.
 
+    product(m: DFA) -> DFA
+        Given a DFA m, returns the product automaton.
+
+    get_nfa() -> NFA
+        Converts the actual DFA to NFA and returns its conversion.
+
+    minimize() -> DFA
+        Minimize the automata and return the minimized version.
+
     view(
-        file_name : str, node_attr : dict[str, str] | None, edge_attr : dict[str, str] | None
+        file_name : str, node_attr : Dict[str, str] | None, edge_attr : Dict[str, str] | None
     ) -> None
         Using the graphviz library, it creates a visual representation of the DFA
-        and saves it as a .png file with the name file_name"""
+        and saves it as a .png file with the name file_name
+    """
 
-    q: set[str]
-    sigma: set[str]
-    delta: dict[str, dict[str, str]]
-    initial_state: str
-    f: set[str]
+    def __init__(
+        self,
+        q: Set[str],
+        sigma: Set[str],
+        delta: Dict[str, Dict[str, str]],
+        initial_state: str,
+        f: Set[str],
+    ) -> None:
+        """Initialize a Deterministic Finite Automaton.
+
+        Args:
+            q: Set of states
+            sigma: Set of input symbols (alphabet)
+            delta: Transition function
+            initial_state: Initial state
+            f: Set of final states
+        """
+        super().__init__(q, sigma, delta, initial_state, f)
 
     def accept(self, string: str) -> bool:
         """Returns True if the given string is accepted by the DFA
@@ -116,7 +120,7 @@ class DFA:
         ans = False
 
         # queue -> states from i to last character in S | (index, state)
-        q: deque[tuple[int, str]] = deque()
+        q: deque[Tuple[int, str]] = deque()
         q.append([0, self.initial_state])
 
         while q and not ans:
@@ -135,32 +139,11 @@ class DFA:
 
     def is_valid(self) -> bool:
         """Returns True if the DFA is a valid automata"""
-        sigma_error_msg_not_q = "Is not declared in Q"
-        sigma_error_msg_not_sigma = "Is not declared in sigma"
-
-        # Validate if the initial state is in the set Q
-        if self.initial_state not in self.q:
-            raise SigmaError(self.initial_state, sigma_error_msg_not_q)
-
-        # Validate if the delta transitions are in the set Q
-        for d in self.delta:
-            if d not in self.q:
-                raise SigmaError(d, sigma_error_msg_not_q)
-
-            # Validate if the d transitions are valid
-            for s in self.delta[d]:
-                if s not in self.sigma:
-                    raise SigmaError(s, sigma_error_msg_not_sigma)
-                elif self.delta[d][s] not in self.q:
-                    raise SigmaError(self.delta[d][s], sigma_error_msg_not_q)
-
-        # Validate if the final state are in Q
-        for f in self.f:
-            if f not in self.q:
-                raise SigmaError(f, sigma_error_msg_not_q)
-
-        # None of the above cases failed then this DFA is valid
-        return True
+        return (
+            self._validate_initial_state()
+            and self._validate_final_states()
+            and self._validate_transitions()
+        )
 
     def complement(self) -> "DFA":
         """Returns the complement of the DFA."""
@@ -172,55 +155,50 @@ class DFA:
 
         return DFA(q, sigma, delta, initial_state, f)
 
-    def get_nfa(self):
-        from automathon.finite_automata.nfa import NFA
+    def __binary_operation(
+        self,
+        m: "DFA",
+        operation: Callable[[str, Set[str], str, Set[str]], bool],
+    ) -> "DFA":
+        new_q_list: List[Tuple[str, str]] = []
 
-        """Convert the actual DFA to NFA class and return it's conversion"""
-        q = self.q.copy()
-        delta = dict()
-        initial_state = self.initial_state
-        f = self.f.copy()
-        sigma = self.sigma
-
-        for state, transition in self.delta.items():
-            # state : str, transition : dict(sigma, Q)
-            tmp = dict()
-            for s, _q in transition.items():
-                # s : sigma
-                tmp[s] = [_q]
-
-            delta[state] = tmp
-
-        return NFA(q, sigma, delta, initial_state, f)
-
-    def product(self, m: "DFA") -> "DFA":
         initial_state = str((self.initial_state, m.initial_state))
-        cross_product_states = {
-            (q_1, q_2) for q_1, q_2 in itertools.product(self.q, m.q)
-        }
-        q = {str(state) for state in cross_product_states}
-        sigma = self.sigma & m.sigma
-        f = {
-            str((q_1, q_2))
-            for (q_1, q_2) in cross_product_states
-            if q_1 in self.f and q_2 in m.f
-        }
-        delta: dict[str, dict[str, str]] = dict()
+        delta: Dict[str, Dict[str, str]] = dict()
+        sigma: Set[str] = self.sigma.copy()
+        f: Set[str] = set()
 
-        for q_1, q_2 in cross_product_states:
-            actual_state = str((q_1, q_2))
-            delta[actual_state] = dict()
-            common_sigma = filter(
-                lambda x: x in sigma,
-                set(self.delta[q_1].keys()) | set(m.delta[q_2].keys()),
+        # Check if both sigmas are the same
+        if self.sigma != m.sigma:
+            raise ValueError(
+                f"{self.sigma}, Sigma from both DFAs must be the same"
             )
 
-            for a in common_sigma:
-                delta[actual_state][a] = str(
-                    (self.delta[q_1][a], m.delta[q_2][a])
-                )
+        queue: deque[Tuple[str, str]] = deque()
+        queue.append((self.initial_state, m.initial_state))
 
-        return DFA(q, sigma, delta, initial_state, f)
+        while queue:
+            a, b = queue.popleft()
+
+            new_q_list.append((a, b))
+
+            if operation(a, self.f, b, m.f):
+                f.add(str((a, b)))
+
+            common_transitions = self.delta[a].keys() & m.delta[b].keys()
+
+            for s in common_transitions:
+                new_q = (self.delta[a][s], m.delta[b][s])
+
+                if new_q not in new_q_list:
+                    queue.append(new_q)
+                    new_q_list.append(new_q)
+
+                if str((a, b)) in delta:
+                    delta[str((a, b))][s] = str(new_q)
+                else:
+                    delta[str((a, b))] = {s: str(new_q)}
+
+        return DFA(set(map(str, new_q_list)), sigma, delta, initial_state, f)
 
     def union(self, m: "DFA") -> "DFA":
         """Given a DFA  returns the union automaton"""
@@ -248,102 +226,58 @@ class DFA:
             or (a not in f and b in f_m),
         )
 
-    def __binary_operation(
-        self,
-        m: "DFA",
-        operation: Callable[[str, set[str], str, set[str]], bool],
-    ) -> "DFA":
-        new_q_list: list[tuple[str, str]] = []
-
+    def product(self, m: "DFA") -> "DFA":
         initial_state = str((self.initial_state, m.initial_state))
-        delta: dict[str, dict[str, str]] = dict()
-        sigma: set[str] = self.sigma.copy()
-        f: set[str] = set()
+        cross_product_states = {
+            (q_1, q_2) for q_1, q_2 in itertools.product(self.q, m.q)
+        }
+        q = {str(state) for state in cross_product_states}
+        sigma = self.sigma & m.sigma
+        f = {
+            str((q_1, q_2))
+            for (q_1, q_2) in cross_product_states
+            if q_1 in self.f and q_2 in m.f
+        }
+        delta: Dict[str, Dict[str, str]] = dict()
 
-        # Check if both sigmas are the same
-        if self.sigma != m.sigma:
-            raise SigmaError(
-                self.sigma, "Sigma from both DFAs must be the same"
+        for q_1, q_2 in cross_product_states:
+            actual_state = str((q_1, q_2))
+            delta[actual_state] = dict()
+            common_sigma = filter(
+                lambda x: x in sigma,
+                set(self.delta[q_1].keys()) | set(m.delta[q_2].keys()),
             )
 
-        queue: deque[tuple[str, str]] = deque()
-        queue.append((self.initial_state, m.initial_state))
-
-        while queue:
-            a, b = queue.popleft()
-
-            new_q_list.append((a, b))
-
-            if operation(a, self.f, b, m.f):
-                f.add(str((a, b)))
-
-            common_transitions = self.delta[a].keys() & m.delta[b].keys()
-
-            for s in common_transitions:
-                new_q = (self.delta[a][s], m.delta[b][s])
-
-                if new_q not in new_q_list:
-                    queue.append(new_q)
-                    new_q_list.append(new_q)
-
-                if str((a, b)) in delta:
-                    delta[str((a, b))][s] = str(new_q)
-                else:
-                    delta[str((a, b))] = {s: str(new_q)}
-
-        return DFA(set(map(str, new_q_list)), sigma, delta, initial_state, f)
-
-    def minimize(self) -> "DFA":
-        """Minimize the automata and return the minimized version"""
-        p_k: set[frozenset[str]] = set(
-            [frozenset([*self.q.difference(self.f)]), frozenset([*self.f])]
-        )
-        p_prev: set[frozenset[str]] = set()
-
-        while p_k != p_prev:
-            states_idx: dict[str, int] = self.__states_idx_table(p_k)
-            new_p_k: list[set[str]] = []
-
-            for p_states in p_k:
-                p_states_lst = list(p_states)
-                new_p_k.append({p_states_lst[0]})
-
-                for i in range(1, len(p_states_lst)):
-                    was_added = False
-                    p_i_sigma = set(self.delta[p_states_lst[i]].keys())
-
-                    new_p_k, was_added = self.__define_group_ith_element(
-                        i, new_p_k, p_i_sigma, p_states_lst, states_idx
-                    )
-
-                    if not was_added:
-                        new_p_k.append({p_states_lst[i]})
-
-            p_prev, p_k = p_k, set(map(lambda s: frozenset([*s]), new_p_k))
-
-        states_idx: dict[str, int] = self.__states_idx_table(p_k)
-        initial_state = f"q{states_idx[self.initial_state]}"
-        final_states = set(list_map(lambda s: f"q{states_idx[s]}", self.f))
-
-        delta: dict[str, dict[str, str]] = dict()
-        states = set(list_map(lambda idx: f"q{idx}", states_idx.values()))
-
-        for state_group in p_k:
-            fst_state = list(state_group)[0]
-
-            delta[f"q{states_idx[fst_state]}"] = dict()
-
-            for s in self.delta[fst_state]:
-                delta[f"q{states_idx[fst_state]}"][s] = (
-                    f"q{states_idx[self.delta[fst_state][s]]}"
+            for a in common_sigma:
+                delta[actual_state][a] = str(
+                    (self.delta[q_1][a], m.delta[q_2][a])
                 )
 
-        return DFA(
-            states, self.sigma.copy(), delta, initial_state, final_states
-        )
+        return DFA(q, sigma, delta, initial_state, f)
 
-    def __states_idx_table(self, p_k: set[frozenset[str]]) -> dict[str, int]:
-        states_idx: dict[str, int] = dict()
+    def get_nfa(self):
+        from automathon.finite_automata.nfa import NFA
+
+        """Convert the actual DFA to NFA class and return it's conversion"""
+        q = self.q.copy()
+        delta = dict()
+        initial_state = self.initial_state
+        f = self.f.copy()
+        sigma = self.sigma
+
+        for state, transition in self.delta.items():
+            # state : str, transition : dict(sigma, Q)
+            tmp = dict()
+            for s, _q in transition.items():
+                # s : sigma
+                tmp[s] = set([_q])
+
+            delta[state] = tmp
+
+        return NFA(q, sigma, delta, initial_state, f)
+
+    def __states_idx_table(self, p_k: Set[FrozenSet[str]]) -> Dict[str, int]:
+        states_idx: Dict[str, int] = dict()
 
         for i in range(len(p_k)):
             for state in list(p_k)[i]:
@@ -354,11 +288,11 @@ class DFA:
     def __define_group_ith_element(
         self,
         i: int,
-        new_p_k: list[set[str]],
-        p_i_sigma: set[str],
-        p_states_lst: list[str],
-        states_idx: dict[str, int],
-    ) -> tuple[list[set[str]], bool]:
+        new_p_k: List[Set[str]],
+        p_i_sigma: Set[str],
+        p_states_lst: List[str],
+        states_idx: Dict[str, int],
+    ) -> Tuple[List[Set[str]], bool]:
         was_added = False
         for new_p_states in new_p_k:
             new_p_states_lst = list(new_p_states)
@@ -385,32 +319,73 @@ class DFA:
 
         return new_p_k, was_added
 
+    def minimize(self) -> "DFA":
+        """Minimize the automata and return the minimized version"""
+        p_k: Set[FrozenSet[str]] = set(
+            [frozenset([*self.q.difference(self.f)]), frozenset([*self.f])]
+        )
+        p_prev: Set[FrozenSet[str]] = set()
+
+        while p_k != p_prev:
+            states_idx: Dict[str, int] = self.__states_idx_table(p_k)
+            new_p_k: List[Set[str]] = []
+
+            for p_states in p_k:
+                p_states_lst = list(p_states)
+                new_p_k.append({p_states_lst[0]})
+
+                for i in range(1, len(p_states_lst)):
+                    was_added = False
+                    p_i_sigma = set(self.delta[p_states_lst[i]].keys())
+
+                    new_p_k, was_added = self.__define_group_ith_element(
+                        i, new_p_k, p_i_sigma, p_states_lst, states_idx
+                    )
+
+                    if not was_added:
+                        new_p_k.append({p_states_lst[i]})
+
+            p_prev, p_k = p_k, set(map(lambda s: frozenset([*s]), new_p_k))
+
+        states_idx: Dict[str, int] = self.__states_idx_table(p_k)
+        initial_state = f"q{states_idx[self.initial_state]}"
+        final_states = set(list_map(lambda s: f"q{states_idx[s]}", self.f))
+
+        delta: Dict[str, Dict[str, str]] = dict()
+        states = set(list_map(lambda idx: f"q{idx}", states_idx.values()))
+
+        for state_group in p_k:
+            fst_state = list(state_group)[0]
+
+            delta[f"q{states_idx[fst_state]}"] = dict()
+
+            for s in self.delta[fst_state]:
+                delta[f"q{states_idx[fst_state]}"][s] = (
+                    f"q{states_idx[self.delta[fst_state][s]]}"
+                )
+
+        return DFA(
+            states, self.sigma.copy(), delta, initial_state, final_states
+        )
+
     def view(
         self,
         file_name: str,
         file_format: Literal["svg", "png"] = "png",
-        node_attr: dict[str, str] | None = None,
-        edge_attr: dict[str, str] | None = None,
+        node_attr: Optional[Dict[str, str]] = None,
+        edge_attr: Optional[Dict[str, str]] = None,
     ) -> None:
-        dot = Digraph(
-            name=file_name,
-            format=file_format,
-            node_attr=node_attr,
-            edge_attr=edge_attr,
+        """Create a visual representation of the DFA.
+
+        Args:
+            file_name: Name of the output file
+            file_format: Format of the output file (svg or png)
+            node_attr: Attributes for nodes in the visualization
+            edge_attr: Attributes for edges in the visualization
+        """
+        dot = self._create_base_graph(
+            file_name, file_format, node_attr, edge_attr
         )
-
-        dot.graph_attr["rankdir"] = "LR"
-
-        dot.node("", "", shape="plaintext")
-
-        for f in self.f:
-            dot.node(f, f, shape="doublecircle")
-
-        for q in self.q:
-            if q not in self.f:
-                dot.node(q, q, shape="circle")
-
-        dot.edge("", self.initial_state, label="")
 
         for q in self.delta:
             for s in self.delta[q]:

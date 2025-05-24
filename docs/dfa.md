@@ -6,12 +6,12 @@
 
 Here are the attributes of the `DFA` class:
 
-- `q` (`set[str]`): Set of strings where each string is a state of the automata.
-- `sigma` (`set[str]`): Set of strings where each string is a symbol of the
+- `q` (`Set[str]`): Set of strings where each string is a state of the automata.
+- `sigma` (`Set[str]`): Set of strings where each string is a symbol of the
     alphabet, the length of each string must be 1. The empty string is not
     allowed in the `DFA` implementation if you need to use them then checkout
     [Non-Deterministic Finite Automata](nfa.md).
-- `delta` (`dict[str, dict[str, str]]`): Dictionary that represents the transition
+- `delta` (`Dict[str, Dict[str, str]]`): Dictionary that represents the transition
     function of the automata. The key of the dictionary is a state of the
     automata and the value is another dictionary that represents the transition
     function of the automata. The key of the inner dictionary is a symbol of the
@@ -26,7 +26,7 @@ Here are the attributes of the `DFA` class:
     }
     ```
 - `initial_state` (`str`): String that represents the initial state of the automata. initial_state must be in q.
-- `f` (`set[str]`): Set of strings where each string is a final state of the automata. f must be a subset of q.
+- `f` (`Set[str]`): Set of strings where each string is a final state of the automata. f must be a subset of q.
 
 ### Example
 
