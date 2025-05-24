@@ -1,14 +1,17 @@
+load("@rules_python//python:defs.bzl", "py_library")
+
 py_library(
     name = "finite_automata",
     srcs = [
         "__init__.py",
         "dfa.py",
+        "finite_automata.py",
         "nfa.py",
     ],
     visibility = ["//visibility:public"],
     deps = [
         "//automathon/errors",
         "//automathon/utils",
-        "@pip//graphviz",
+        "@pypi//graphviz",
     ],
 )

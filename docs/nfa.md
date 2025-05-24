@@ -7,11 +7,11 @@ Automata.
 
 Here are the attributes of the `NFA` class:
 
-- `q` (`set[str]`): Set of strings where each string is a state of the automata.
-- `sigma` (`set[str]`): Set of strings where each string is a symbol of the
+- `q` (`Set[str]`): Set of strings where each string is a state of the automata.
+- `sigma` (`Set[str]`): Set of strings where each string is a symbol of the
     alphabet, the length of each string must be 1. The empty string is allowed in
     the `NFA` implementation as the epsilon transition.
-- `delta` (`dict[str, dict[str, set[str]]]`): Dictionary that represents the
+- `delta` (`Dict[str, Dict[str, Set[str]]]`): Dictionary that represents the
     transition function of the automata. The key of the dictionary is a state of
     the automata and the value is another dictionary that represents the
     transition function of the automata. The key of the inner dictionary is a
@@ -36,7 +36,7 @@ Here are the attributes of the `NFA` class:
     ```
 - `initial_state` (`str`): String that represents the initial state of the
     automata. initial_state must be in q.
-- `f` (`set[str]`): Set of strings where each string is a final state of the
+- `f` (`Set[str]`): Set of strings where each string is a final state of the
     automata. f must be a subset of q.
 
 ### Example

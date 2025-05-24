@@ -5,6 +5,7 @@ from __future__ import (
 from automathon.errors.errors import (
     SigmaError,
 )
+from automathon.finite_automata.finite_automata import FA
 from automathon.finite_automata.dfa import (
     DFA,
 )
@@ -16,62 +17,59 @@ from automathon.utils.utils import (
 from collections import (
     deque,
 )
-from dataclasses import (
-    dataclass,
-)
-from graphviz import (
-    Digraph,
-)
-
 from typing import (
-    Literal
+    Literal,
+    Set,
+    Dict,
+    List,
+    Optional,
+    Tuple,
 )
 
 
-@dataclass
-class NFA:
+class NFA(FA):
     """A Class used to represent a Non-Deterministic Finite Automaton
 
     Attributes
-    - - - - - - - - - - - - - - - - - -
-    q : set[str]
-      Set of strings where each string represent the states.
-      Ex:
-        q = {'q0', 'q1', 'q2'}
+    ----------
+    q : Set[str]
+        Set of strings where each string represent the states.
+        Ex:
+            q = {'q0', 'q1', 'q2'}
 
-    sigma : set[str]
-      Set of strings that represents the alphabet.
-      Ex:
-        sigma = {'0', '1'}
+    sigma : Set[str]
+        Set of strings that represents the alphabet.
+        Ex:
+            sigma = {'0', '1'}
 
-    delta : dict[str, dict[str, set[str]]]
-      Dictionary that represents the transition function.
-      Ex:
-        delta = {
-                  'q0' : {
-                          '0' : {'q0', 'q2'},
-                          '1' : {'q1', 'q2', 'q3'}
-                         },
-                  'q1' : {
-                          '0' : {'q2'},
-                          '1' : {'q0', 'q1'}
-                         },
-                  'q2' : {
-                          '0' : {'q1', 'q2'},
-                          '' : {'q2'}
-                         },
-                }
+    delta : Dict[str, Dict[str, Set[str]]]
+        Dictionary that represents the transition function.
+        Ex:
+            delta = {
+                      'q0' : {
+                              '0' : {'q0', 'q2'},
+                              '1' : {'q1', 'q2', 'q3'}
+                             },
+                      'q1' : {
+                              '0' : {'q2'},
+                              '1' : {'q0', 'q1'}
+                             },
+                      'q2' : {
+                              '0' : {'q1', 'q2'},
+                              '' : {'q2'}
+                             },
+                    }
 
     initial_state : str
-      String that represents the initial state from where any input is processed
-      (initial_state ∈ Q / initial_state in q).
-      Ex:
-        initial_state = 'q0'
+        String that represents the initial state from where any input is processed
+        (initial_state ∈ Q / initial_state in q).
+        Ex:
+            initial_state = 'q0'
 
-    f : set
-      Set of strings that represent the final state/states of Q (f ⊆ Q).
-      Ex:
-        f = {'q0', 'q1'}
+    f : Set[str]
+        Set of strings that represent the final state/states of Q (f ⊆ Q).
+        Ex:
+            f = {'q0', 'q1'}
 
 
     Methods
@@ -86,12 +84,12 @@ class NFA:
     complement() -> NFA
         Returns the complement of the NFA
 
-    _get_e_closure(q : str, visited : list[str] | None) -> list[str]
+    _get_e_closure(q : str, visited : List[str] | None) -> List[str]
         Returns a list of the epsilon closures from estate q
 
     _get_new_delta_real_value(
-        delta : dict[str, dict[str, set[str]]], real_value : dict[str, str]
-    ) -> dict[str, dict[str, set[str]]]
+        delta : Dict[str, Dict[str, Set[str]]], real_value : Dict[str, str]
+    ) -> Dict[str, Dict[str, Set[str]]]
         Returns a new delta dictionary with the real values
 
     contains_epsilon_transitions() -> bool
@@ -120,16 +118,29 @@ class NFA:
         Given a NFA m returns the product automaton (NFA)
 
     view(
-        file_name : str, node_attr : dict[str, str] | None, edge_attr : dict[str, str] | None
+        file_name : str, node_attr : Dict[str, str] | None, edge_attr : Dict[str, str] | None
     ) -> None
         Using the graphviz library, it creates a visual representation of the NFA
         and saves it as a .png file with the name file_name"""
 
-    q: set[str]
-    sigma: set[str]
-    delta: dict[str, dict[str, set[str]]]
-    initial_state: str
-    f: set[str]
+    def __init__(
+        self,
+        q: Set[str],
+        sigma: Set[str],
+        delta: Dict[str, Dict[str, Set[str]]],
+        initial_state: str,
+        f: Set[str],
+    ) -> None:
+        """Initialize a Non-Deterministic Finite Automaton.
+
+        Args:
+            q: Set of states
+            sigma: Set of input symbols (alphabet)
+            delta: Transition function
+            initial_state: Initial state
+            f: Set of final states
+        """
+        super().__init__(q, sigma, delta, initial_state, f)
 
     def accept(self, string: str) -> bool:
         """
@@ -151,7 +162,7 @@ class NFA:
         """
 
         def _add_pairs_to_queue(
-            q: deque[tuple[int, str]], pairs: list[tuple[int, str]]
+            q: deque[Tuple[int, str]], pairs: List[Tuple[int, str]]
         ):
             for pair in pairs:
                 q.append(pair)
@@ -160,7 +171,7 @@ class NFA:
 
         # BFS states
 
-        q: deque[tuple[int, str]] = deque()
+        q: deque[Tuple[int, str]] = deque()
         # queue -> states from i to last character in S | (index, state)
         q.append([0, self.initial_state])  # Starts from 0
         ans = False  # Flag
@@ -207,8 +218,7 @@ class NFA:
         return ans
 
     def is_valid(self) -> bool:
-        """
-        Returns True if the NFA is a valid automata.
+        """Returns True if the NFA is a valid automata.
 
         The NFA is valid if the following conditions are met:
         1. The initial state is in the set of states Q.
@@ -216,68 +226,19 @@ class NFA:
         3. All the symbols in the transition function delta are in the alphabet
         set sigma.
 
-        Parameters
-        - - - - - - - - - - - - - - - - - -
-        None
-
         Returns
-        - - - - - - - - - - - - - - - - - -
+        -------
         bool
             True if the NFA is valid, Raises an exception otherwise.
         """
-        undeclared_states: set[str] | list[str] = set()
-
-        # Validate if the initial state is in the set Q
-        if self.initial_state not in self.q:
-            undeclared_states.add(self.initial_state)
-
-        undeclared_origin_states = set(
-            filter(lambda x: x != "" and x not in self.q, self.delta.keys())
-        )
-
-        undeclared_sigma = list(
-            set(
-                filter(
-                    lambda s: s != "" and s not in self.sigma,
-                    [s for d in self.delta for s in self.delta[d]],
-                )
+        try:
+            return (
+                self._validate_initial_state()
+                and self._validate_final_states()
+                and self._validate_transitions()
             )
-        )
-
-        undeclared_destination_states = set(
-            filter(
-                lambda q: q not in self.q,
-                [
-                    q
-                    for d in self.delta
-                    for destination_set in self.delta[d].values()
-                    for q in destination_set
-                ],
-            )
-        )
-
-        undeclared_final_states = set(filter(lambda f: f not in self.q, self.f))
-
-        undeclared_states = list(
-            undeclared_states
-            | undeclared_origin_states
-            | undeclared_destination_states
-            | undeclared_final_states
-        )
-
-        if undeclared_states:
-            raise SigmaError(
-                undeclared_states,
-                f"{'are' if len(undeclared_states) > 1 else 'is'} not declared in Q",
-            )
-
-        if undeclared_sigma:
-            raise SigmaError(
-                undeclared_sigma,
-                f"{'are' if len(undeclared_sigma) > 1 else 'is'} not declared in sigma",
-            )
-
-        return True
+        except Exception as e:
+            raise SigmaError(str(e))
 
     def complement(self) -> "NFA":
         """
@@ -356,8 +317,8 @@ class NFA:
         return NFA(q_prime, self.sigma, delta_prime, delta_init_state, delta_f)
 
     def __get_e_closure(
-        self, q: str, visited: list[str] | None = None
-    ) -> list[str]:
+        self, q: str, visited: List[str] | None = None
+    ) -> List[str]:
         """
         Returns a list of the epsilon closures from estate q.
 
@@ -365,12 +326,12 @@ class NFA:
         - - - - - - - - - - - - - - - - - -
         q : str
             The state from which to start the search.
-        visited : list[str], optional
+        visited : List[str], optional
             A list of already visited states. Defaults to None, in which case it is initialized as a list containing q.
 
         Returns
         - - - - - - - - - - - - - - - - - -
-        list[str]
+        List[str]
             A list of states reachable from q by following epsilon transitions.
         """
         ans = [q]
@@ -381,18 +342,20 @@ class NFA:
             for st in self.delta[q][""]:
                 if st not in visited:
                     visited.append(st)
-                    ans.extend([
-                        k
-                        for k in self.__get_e_closure(st, visited)
-                        if k not in ans
-                    ])
+                    ans.extend(
+                        [
+                            k
+                            for k in self.__get_e_closure(st, visited)
+                            if k not in ans
+                        ]
+                    )
         return ans
 
     def __ret_get_new_transitions(
-        self, q: str, sigma: str, closure_states: list[str], delta_f: set[str]
+        self, q: str, sigma: str, closure_states: List[str], delta_f: Set[str]
     ):
-        to_epsilon_closure: list[str] = []
-        new_transitions: list[str] = []
+        to_epsilon_closure: List[str] = []
+        new_transitions: List[str] = []
 
         # Get the transitions from sigma in each epsilon closure
         for closure_state in closure_states:
@@ -412,10 +375,10 @@ class NFA:
 
     def __ret_update_delta(
         self,
-        delta_prime: dict[str, dict[str, set[str]]],
+        delta_prime: Dict[str, Dict[str, Set[str]]],
         q: str,
         sigma: str,
-        new_transitions: list[str],
+        new_transitions: List[str],
     ):
         if q not in delta_prime:
             delta_prime[q] = dict()
@@ -442,7 +405,7 @@ class NFA:
         local_nfa = local_nfa.remove_epsilon_transitions()
 
         q_prime = []
-        delta_prime: dict[str, dict[str, str]] = dict()
+        delta_prime: Dict[str, Dict[str, str]] = dict()
 
         queue = deque()
         visited = [[local_nfa.initial_state]]
@@ -451,7 +414,7 @@ class NFA:
         while queue:
             qs = queue.pop()  # state Q
 
-            local_transitions: dict[str, str] | dict[str, list[str]] = (
+            local_transitions: Dict[str, str] | Dict[str, List[str]] = (
                 dict()
             )  # {str : list}
 
@@ -491,20 +454,20 @@ class NFA:
         )
 
     def __extend_local_transitions(
-        self, tmp: set[str], s: str, local_transitions: dict[str, list[str]]
+        self, tmp: Set[str], s: str, local_transitions: Dict[str, List[str]]
     ) -> None:
         if tmp and s in local_transitions:
             # avoid add repeated values
-            local_transitions[s].extend([
-                k for k in tmp if k not in local_transitions[s]
-            ])
+            local_transitions[s].extend(
+                [k for k in tmp if k not in local_transitions[s]]
+            )
         elif tmp:
             local_transitions[s] = list(tmp)
 
     def __update_local_transitions(
         self,
-        local_transitions: dict[str, list[str]],
-        visited: list[list[str]],
+        local_transitions: Dict[str, List[str]],
+        visited: List[List[str]],
         queue: deque,
     ) -> None:
         for transition in local_transitions:
@@ -604,8 +567,8 @@ class NFA:
         return NFA(q, sigma, delta, initial_state, f)
 
     def __get_new_delta_real_value(
-        self, delta: dict[str, dict[str, set[str]]], real_value: dict[str, str]
-    ) -> dict[str, dict[str, set[str]]]:
+        self, delta: Dict[str, Dict[str, Set[str]]], real_value: Dict[str, str]
+    ) -> Dict[str, Dict[str, Set[str]]]:
         new_delta = dict()
         for q, transition in delta.items():
             tmp_dict = dict()
@@ -626,11 +589,11 @@ class NFA:
                 "The alphabet of the two automata must be the same",
             )
 
-        new_q_list: list[tuple[str, str]] = []
+        new_q_list: List[Tuple[str, str]] = []
 
         initial_state = str((self.initial_state, m.initial_state))
-        delta: dict[str, dict[str, set[str]]] = dict()
-        f: set[str] = set()
+        delta: Dict[str, Dict[str, Set[str]]] = dict()
+        f: Set[str] = set()
         sigma = self.sigma.copy()
 
         queue = deque()
@@ -650,7 +613,7 @@ class NFA:
                 a_next_states = self.delta[a][s].copy()
                 b_next_states = m.delta[b][s].copy()
 
-                next_states: set[str] = {
+                next_states: Set[str] = {
                     (x, y) for x in a_next_states for y in b_next_states
                 }
 
@@ -684,28 +647,20 @@ class NFA:
         self,
         file_name: str,
         file_format: Literal["svg", "png"] = "png",
-        node_attr: dict[str, str] | None = None,
-        edge_attr: dict[str, str] | None = None,
+        node_attr: Optional[Dict[str, str]] = None,
+        edge_attr: Optional[Dict[str, str]] = None,
     ) -> None:
-        dot = Digraph(
-            name=file_name,
-            format=file_format,
-            node_attr=node_attr,
-            edge_attr=edge_attr,
+        """Create a visual representation of the NFA.
+
+        Args:
+            file_name: Name of the output file
+            file_format: Format of the output file (svg or png)
+            node_attr: Attributes for nodes in the visualization
+            edge_attr: Attributes for edges in the visualization
+        """
+        dot = self._create_base_graph(
+            file_name, file_format, node_attr, edge_attr
         )
-
-        dot.graph_attr["rankdir"] = "LR"
-
-        dot.node("", "", shape="plaintext")
-
-        for _f in self.f:
-            dot.node(_f, _f, shape="doublecircle")
-
-        for _q in self.q:
-            if _q not in self.f:
-                dot.node(_q, _q, shape="circle")
-
-        dot.edge("", self.initial_state, label="")
 
         for q in self.delta:
             for s in self.delta[q]:
