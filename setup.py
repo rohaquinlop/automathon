@@ -13,7 +13,6 @@ setup(
         include=[
             "automathon",
             "automathon.finite_automata",
-            "automathon.errors",
             "automathon.utils",
         ]
     ),

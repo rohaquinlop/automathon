@@ -2,9 +2,6 @@
 from __future__ import (
     annotations,
 )
-from automathon.errors.errors import (
-    SigmaError,
-)
 from automathon.finite_automata.finite_automata import FA
 from automathon.finite_automata.dfa import (
     DFA,
@@ -229,16 +226,13 @@ class NFA(FA):
         Returns
         -------
         bool
-            True if the NFA is valid, Raises an exception otherwise.
+            True if the NFA is valid, False otherwise.
         """
-        try:
-            return (
-                self._validate_initial_state()
-                and self._validate_final_states()
-                and self._validate_transitions()
-            )
-        except Exception as e:
-            raise SigmaError(str(e))
+        return (
+            self._validate_initial_state()
+            and self._validate_final_states()
+            and self._validate_transitions()
+        )
 
     def complement(self) -> "NFA":
         """
@@ -584,10 +578,9 @@ class NFA(FA):
     def intersection(self, m: "NFA") -> "NFA":
         """Given a NFA m returns the intersection automaton"""
         if self.sigma != m.sigma:
-            raise SigmaError(
-                self.sigma,
-                "The alphabet of the two automata must be the same",
-            )
+            return NFA(
+                set(), set(), dict(), "", set()
+            )  # Return empty NFA for invalid intersection
 
         new_q_list: List[Tuple[str, str]] = []
 

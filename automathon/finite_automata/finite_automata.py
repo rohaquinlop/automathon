@@ -111,44 +111,38 @@ class FA(ABC):
         """Validate that the initial state is in the set of states.
 
         Returns:
-            True if valid, raises exception otherwise
+            True if the initial state is valid, False otherwise
         """
-        if self.initial_state not in self.q:
-            raise Exception(f"{self.initial_state} is not declared in Q")
-        return True
+        return self.initial_state in self.q
 
     def _validate_final_states(self) -> bool:
         """Validate that all final states are in the set of states.
 
         Returns:
-            True if valid, raises exception otherwise
+            True if all final states are valid, False otherwise
         """
-        for f in self.f:
-            if f not in self.q:
-                raise Exception(f"{f} is not declared in Q")
-        return True
+        return all(f in self.q for f in self.f)
 
     def _validate_transitions(self) -> bool:
         """Validate that all transitions are valid.
 
         Returns:
-            True if valid, raises exception otherwise
+            True if all transitions are valid, False otherwise
         """
         for state in self.delta:
             if state not in self.q:
-                raise Exception(f"{state} is not declared in Q")
+                return False
 
             for symbol, next_state in self.delta[state].items():
                 if symbol and symbol not in self.sigma:
-                    raise Exception(f"{symbol} is not declared in sigma")
+                    return False
 
                 if isinstance(next_state, str):
                     if next_state not in self.q:
-                        raise Exception(f"{next_state} is not declared in Q")
+                        return False
                 elif isinstance(next_state, set):
-                    for ns in next_state:
-                        if ns not in self.q:
-                            raise Exception(f"{ns} is not declared in Q")
+                    if not all(ns in self.q for ns in next_state):
+                        return False
         return True
 
     def _create_base_graph(

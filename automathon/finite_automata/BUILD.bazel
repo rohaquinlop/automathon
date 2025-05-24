@@ -10,7 +10,6 @@ py_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
-        "//automathon/errors",
         "//automathon/utils",
         "@pypi//graphviz",
     ],
