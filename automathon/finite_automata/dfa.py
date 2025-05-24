@@ -169,7 +169,7 @@ class DFA(FA):
 
         # Check if both sigmas are the same
         if self.sigma != m.sigma:
-            raise Exception(
+            raise ValueError(
                 f"{self.sigma}, Sigma from both DFAs must be the same"
             )
 
