@@ -251,13 +251,11 @@ class NFA(FA):
         NFA
             The complement of the original NFA.
         """
-        q = self.q
-        sigma = self.sigma
-        delta = self.delta
-        initial_state = self.initial_state
-        f = {state for state in self.q if state not in self.f}
-
-        return NFA(q, sigma, delta, initial_state, f)
+        dfa = self.get_dfa()
+        dfa = dfa.complement()
+        nfa = dfa.get_nfa()
+        nfa.renumber()
+        return nfa.minimize()
 
     def contains_epsilon_transitions(self) -> bool:
         """Returns True if the NFA contains Epsilon transitions.
