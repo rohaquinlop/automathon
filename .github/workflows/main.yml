@@ -39,7 +39,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
       - name: complexipy
         uses: rohaquinlop/complexipy-action@v1
         with:
-          paths: '.'
+          paths: './automathon'
+          max_complexity: '15'
