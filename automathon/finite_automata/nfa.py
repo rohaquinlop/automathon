@@ -423,14 +423,13 @@ class NFA(FA):
             q_prime.append(qs)
 
         f_prime = set()
+        aux = set()
 
         for qs in q_prime:
             for q in qs:
                 if q in local_nfa.f:
                     f_prime.add(str(qs))
                     break
-
-        aux = set()
 
         for qs in q_prime:
             aux.add(str(qs))

@@ -34,3 +34,12 @@ jobs:
           path: .cache
       - run: pip install mkdocs-material
       - run: mkdocs gh-deploy --force
+
+  cognitive-complexity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: complexipy
+        uses: rohaquinlop/complexipy-action@v1
+        with:
+          paths: './automathon'
