@@ -11,7 +11,6 @@ from typing import (
     Optional,
     FrozenSet,
 )
-import itertools
 
 
 class DFA(FA):
@@ -227,33 +226,68 @@ class DFA(FA):
         )
 
     def product(self, m: "DFA") -> "DFA":
-        initial_state = str((self.initial_state, m.initial_state))
-        cross_product_states = {
-            (q_1, q_2) for q_1, q_2 in itertools.product(self.q, m.q)
-        }
-        q = {str(state) for state in cross_product_states}
+        """Given a DFA m, returns the product automaton."""
+        product_states = self.__product_states(m)
+        q = {self.__product_state_name(state) for state in product_states}
         sigma = self.sigma & m.sigma
-        f = {
-            str((q_1, q_2))
-            for (q_1, q_2) in cross_product_states
-            if q_1 in self.f and q_2 in m.f
-        }
-        delta: Dict[str, Dict[str, str]] = dict()
-
-        for q_1, q_2 in cross_product_states:
-            actual_state = str((q_1, q_2))
-            delta[actual_state] = dict()
-            common_sigma = filter(
-                lambda x: x in sigma,
-                set(self.delta[q_1].keys()) | set(m.delta[q_2].keys()),
-            )
-
-            for a in common_sigma:
-                delta[actual_state][a] = str(
-                    (self.delta[q_1][a], m.delta[q_2][a])
-                )
+        delta = self.__product_delta(m, product_states, sigma)
+        initial_state = self.__product_state_name(
+            (self.initial_state, m.initial_state)
+        )
+        f = self.__product_final_states(m, product_states)
 
         return DFA(q, sigma, delta, initial_state, f)
+
+    @staticmethod
+    def __product_state_name(state: Tuple[str, str]) -> str:
+        return str(state)
+
+    def __product_states(self, m: "DFA") -> Set[Tuple[str, str]]:
+        return {
+            (left_state, right_state)
+            for left_state in self.q
+            for right_state in m.q
+        }
+
+    def __product_final_states(
+        self, m: "DFA", product_states: Set[Tuple[str, str]]
+    ) -> Set[str]:
+        return {
+            self.__product_state_name((left_state, right_state))
+            for left_state, right_state in product_states
+            if left_state in self.f and right_state in m.f
+        }
+
+    def __product_delta(
+        self,
+        m: "DFA",
+        product_states: Set[Tuple[str, str]],
+        sigma: Set[str],
+    ) -> Dict[str, Dict[str, str]]:
+        delta: Dict[str, Dict[str, str]] = dict()
+
+        for left_state, right_state in product_states:
+            state_name = self.__product_state_name(
+                (left_state, right_state)
+            )
+            delta[state_name] = dict()
+
+            common_transitions = (
+                self.delta[left_state].keys()
+                & m.delta[right_state].keys()
+                & sigma
+            )
+
+            for symbol in common_transitions:
+                next_state = (
+                    self.delta[left_state][symbol],
+                    m.delta[right_state][symbol],
+                )
+                delta[state_name][symbol] = self.__product_state_name(
+                    next_state
+                )
+
+        return delta
 
     def get_nfa(self):
         from automathon.finite_automata.nfa import NFA
